@@ -95,6 +95,8 @@ public class TopicActivity extends ActionBarActivity {
             onTopicItemClick((Child.Topic) child);
         } else if (child instanceof Child.Video) {
             onVideoItemClick((Child.Video) child);
+        } else if (child instanceof Child.Exercise) {
+            onExerciseItemClick((Child.Exercise) child);
         } else {
             onContentItemClick(child);
         }
@@ -111,6 +113,11 @@ public class TopicActivity extends ActionBarActivity {
 
     private void onVideoItemClick(Child.Video video) {
         Intent intent = VideoPlayerActivity.buildIntent(this, video.id);
+        startActivity(intent);
+    }
+
+    private void onExerciseItemClick(Child.Exercise exercise) {
+        Intent intent = ExerciseActivity.buildIntent(this, exercise.id);
         startActivity(intent);
     }
 }
