@@ -1,39 +1,57 @@
 package com.bsstokes.learnanything;
 
-import android.support.v7.app.ActionBarActivity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.ActionBarActivity;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
+import com.bsstokes.learnanything.api.KhanAcademyApi;
+import com.bsstokes.learnanything.api.models.Topic;
+import com.bsstokes.learnanything.api.models.TopicTree;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnItemClick;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class TopicTreeActivity extends ActionBarActivity {
+
+    @InjectView(R.id.topic_list_view)
+    ListView mTopicListView;
+
+    ArrayAdapter<Topic> mTopicAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic_tree);
+        ButterKnife.inject(this);
+
+        mTopicAdapter = new ArrayAdapter<>(this, R.layout.row_topic, R.id.topic_title_text_view);
+        mTopicListView.setAdapter(mTopicAdapter);
+
+        KhanAcademyApi.Client khanAcademyClient = new KhanAcademyApi.Client();
+        khanAcademyClient.getTopicTreeOfKindTopic(new Callback<TopicTree>() {
+            @Override
+            public void success(TopicTree topicTree, Response response) {
+                mTopicAdapter.clear();
+                mTopicAdapter.addAll(topicTree.children);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_topic_tree, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    @OnItemClick(R.id.topic_list_view)
+    void onTopicItemClick(int position) {
+        Topic topic = mTopicAdapter.getItem(position);
+        Intent intent = TopicActivity.buildIntent(this, topic.title, topic.domain_slug);
+        startActivity(intent);
     }
 }
