@@ -1,10 +1,18 @@
 package com.bsstokes.learnanything.api;
 
+import com.bsstokes.learnanything.BuildConfig;
+import com.bsstokes.learnanything.api.models.Content;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
+import com.bsstokes.learnanything.api.models.UnknownContent;
+import com.bsstokes.learnanything.api.models.Video;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.typeadapters.RuntimeTypeAdapter;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
+import retrofit.converter.GsonConverter;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
@@ -24,8 +32,20 @@ public class KhanAcademyApi {
         protected KhanAcademyService mService;
 
         public Client() {
+
+            RuntimeTypeAdapter<Content> contentAdapter =
+                    RuntimeTypeAdapter.create(Content.class, UnknownContent.class, "kind")
+                            .registerSubtype(Topic.class, "Topic")
+                            .registerSubtype(Video.class, "Video");
+
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Content.class, contentAdapter)
+                    .create();
+
             RestAdapter restAdapter = new RestAdapter.Builder()
                     .setEndpoint("http://www.khanacademy.org/api/v1/")
+                    .setConverter(new GsonConverter(gson))
+                    .setLogLevel(BuildConfig.DEBUG ? RestAdapter.LogLevel.BASIC : RestAdapter.LogLevel.NONE)
                     .build();
 
             mService = restAdapter.create(KhanAcademyService.class);

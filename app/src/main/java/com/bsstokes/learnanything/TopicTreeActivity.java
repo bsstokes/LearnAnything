@@ -3,6 +3,7 @@ package com.bsstokes.learnanything;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -51,7 +52,13 @@ public class TopicTreeActivity extends ActionBarActivity {
     @OnItemClick(R.id.topic_list_view)
     void onTopicItemClick(int position) {
         Topic topic = mTopicAdapter.getItem(position);
-        Intent intent = TopicActivity.buildIntent(this, topic.title, topic.domain_slug);
-        startActivity(intent);
+        if (topic.isTopic()) {
+            Intent intent = TopicActivity.buildIntent(this, topic.translated_title, topic.domain_slug);
+            startActivity(intent);
+        } else {
+            Log.e(TAG, "I don't know what kind this is: " + topic.kind);
+        }
     }
+
+    private static final String TAG = TopicTreeActivity.class.getName();
 }

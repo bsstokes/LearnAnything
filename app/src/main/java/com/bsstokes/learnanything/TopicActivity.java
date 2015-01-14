@@ -9,6 +9,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bsstokes.learnanything.api.KhanAcademyApi;
+import com.bsstokes.learnanything.api.models.Content;
 import com.bsstokes.learnanything.api.models.Topic;
 
 import java.util.Locale;
@@ -36,7 +37,7 @@ public class TopicActivity extends ActionBarActivity {
 
     private String mTitle;
     private String mTopicSlug;
-    ArrayAdapter<Topic> mTopicAdapter;
+    ArrayAdapter<Content> mContentAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +45,8 @@ public class TopicActivity extends ActionBarActivity {
         setContentView(R.layout.activity_topic);
         ButterKnife.inject(this);
 
-        mTopicAdapter = new ArrayAdapter<>(this, R.layout.row_topic, R.id.topic_title_text_view);
-        mTopicListView.setAdapter(mTopicAdapter);
+        mContentAdapter = new ArrayAdapter<>(this, R.layout.row_topic, R.id.topic_title_text_view);
+        mTopicListView.setAdapter(mContentAdapter);
 
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
@@ -60,15 +61,15 @@ public class TopicActivity extends ActionBarActivity {
             @Override
             public void success(Topic topic, Response response) {
                 String message = String.format(Locale.getDefault(), "%s, %s, %s",
-                        topic.title,
+                        topic.translated_title,
                         topic.domain_slug,
                         topic.kind);
                 Toast.makeText(TopicActivity.this, message, Toast.LENGTH_SHORT).show();
 
-                mTitle = topic.title;
+                mTitle = topic.translated_title;
                 setTitle(mTitle);
-                mTopicAdapter.clear();
-                mTopicAdapter.addAll(topic.children);
+                mContentAdapter.clear();
+                mContentAdapter.addAll(topic.children);
             }
 
             @Override

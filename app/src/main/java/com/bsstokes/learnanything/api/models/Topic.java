@@ -2,14 +2,14 @@ package com.bsstokes.learnanything.api.models;
 
 import java.util.List;
 
-public class Topic {
-    public String title;
-    public String domain_slug;
-    public String kind;
-    public List<Topic> children;
+public class Topic extends Content {
 
-    @Override
-    public String toString() {
-        return title;
+    public static final String KIND_TOPIC = "Topic";
+
+    public String domain_slug;
+    public List<Content> children;
+
+    public boolean isTopic() {
+        return KIND_TOPIC.equals(kind);
     }
 }
