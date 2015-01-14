@@ -110,6 +110,7 @@ public class TopicActivity extends ActionBarActivity {
     }
 
     private void onVideoItemClick(Child.Video video) {
-        Toast.makeText(this, video.translated_title + " (Video)", Toast.LENGTH_SHORT).show();
+        Intent intent = VideoPlayerActivity.buildIntent(this, video.id);
+        startActivity(intent);
     }
 }

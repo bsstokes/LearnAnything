@@ -4,6 +4,7 @@ import com.bsstokes.learnanything.BuildConfig;
 import com.bsstokes.learnanything.api.models.Child;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
+import com.bsstokes.learnanything.api.models.Video;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.typeadapters.RuntimeTypeAdapter;
@@ -23,6 +24,9 @@ public class KhanAcademyApi {
 
         @GET("/topic/{topic_slug}")
         void getTopic(@Path("topic_slug") String topicSlug, Callback<Topic> callback);
+
+        @GET("/videos/{video_id}")
+        void getVideo(@Path("video_id") String videoId, Callback<Video> callback);
     }
 
     public static class Client {
@@ -57,6 +61,10 @@ public class KhanAcademyApi {
 
         public void getTopic(String topicSlug, Callback<Topic> callback) {
             mService.getTopic(topicSlug, callback);
+        }
+
+        public void getVideo(String videoId, Callback<Video> callback) {
+            mService.getVideo(videoId, callback);
         }
     }
 }
