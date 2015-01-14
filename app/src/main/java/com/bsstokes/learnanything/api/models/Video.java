@@ -1,6 +1,6 @@
 package com.bsstokes.learnanything.api.models;
 
-public class Video extends Content {
+public class Video {
 
     @Override
     public String toString() {

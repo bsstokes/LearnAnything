@@ -1,11 +1,9 @@
 package com.bsstokes.learnanything.api;
 
 import com.bsstokes.learnanything.BuildConfig;
-import com.bsstokes.learnanything.api.models.Content;
+import com.bsstokes.learnanything.api.models.Child;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
-import com.bsstokes.learnanything.api.models.UnknownContent;
-import com.bsstokes.learnanything.api.models.Video;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.typeadapters.RuntimeTypeAdapter;
@@ -33,13 +31,15 @@ public class KhanAcademyApi {
 
         public Client() {
 
-            RuntimeTypeAdapter<Content> contentAdapter =
-                    RuntimeTypeAdapter.create(Content.class, UnknownContent.class, "kind")
-                            .registerSubtype(Topic.class, "Topic")
-                            .registerSubtype(Video.class, "Video");
+            RuntimeTypeAdapter<Child> childAdapter =
+                    RuntimeTypeAdapter.create(Child.class, Child.Unknown.class, "kind")
+                            .registerSubtype(Child.Topic.class, "Topic")
+                            .registerSubtype(Child.Video.class, "Video")
+                            .registerSubtype(Child.Exercise.class, "Exercise")
+                            .registerSubtype(Child.Article.class, "Article");
 
             Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(Content.class, contentAdapter)
+                    .registerTypeAdapter(Child.class, childAdapter)
                     .create();
 
             RestAdapter restAdapter = new RestAdapter.Builder()

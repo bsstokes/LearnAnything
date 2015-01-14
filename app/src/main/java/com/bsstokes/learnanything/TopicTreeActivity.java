@@ -53,7 +53,7 @@ public class TopicTreeActivity extends ActionBarActivity {
     void onTopicItemClick(int position) {
         Topic topic = mTopicAdapter.getItem(position);
         if (topic.isTopic()) {
-            Intent intent = TopicActivity.buildIntent(this, topic.translated_title, topic.domain_slug);
+            Intent intent = TopicActivity.buildIntent(this, topic.translated_title, topic.slug);
             startActivity(intent);
         } else {
             Log.e(TAG, "I don't know what kind this is: " + topic.kind);
