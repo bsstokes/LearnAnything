@@ -2,18 +2,13 @@ package com.bsstokes.learnanything.api;
 
 import com.bsstokes.learnanything.BuildConfig;
 import com.bsstokes.learnanything.api.models.Article;
-import com.bsstokes.learnanything.api.models.Child;
 import com.bsstokes.learnanything.api.models.Exercise;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
 import com.bsstokes.learnanything.api.models.Video;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.typeadapters.RuntimeTypeAdapter;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
-import retrofit.converter.GsonConverter;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
@@ -42,21 +37,8 @@ public class KhanAcademyApi {
         protected KhanAcademyService mService;
 
         public Client() {
-
-            RuntimeTypeAdapter<Child> childAdapter =
-                    RuntimeTypeAdapter.create(Child.class, Child.Unknown.class, "kind")
-                            .registerSubtype(Child.Topic.class, "Topic")
-                            .registerSubtype(Child.Video.class, "Video")
-                            .registerSubtype(Child.Exercise.class, "Exercise")
-                            .registerSubtype(Child.Article.class, "Article");
-
-            Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(Child.class, childAdapter)
-                    .create();
-
             RestAdapter restAdapter = new RestAdapter.Builder()
                     .setEndpoint("http://www.khanacademy.org/api/v1/")
-                    .setConverter(new GsonConverter(gson))
                     .setLogLevel(BuildConfig.DEBUG ? RestAdapter.LogLevel.BASIC : RestAdapter.LogLevel.NONE)
                     .build();
 

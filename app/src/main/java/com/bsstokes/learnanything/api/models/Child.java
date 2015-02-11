@@ -11,28 +11,4 @@ public class Child {
     public String node_slug;
     public String id;
     public String edit_slug;
-
-    @Override
-    public String toString() {
-        return translated_title;
-    }
-
-    public static class Topic extends Child {
-    }
-
-    public static class Video extends Child {
-    }
-
-    public static class Exercise extends Child {
-    }
-
-    public static class Article extends Child {
-    }
-
-    public static class Unknown extends Child {
-        @Override
-        public String toString() {
-            return super.toString() + " (Unknown)";
-        }
-    }
 }

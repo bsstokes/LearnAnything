@@ -121,16 +121,16 @@ public class TopicActivity extends ActionBarActivity {
     @OnItemClick(R.id.topic_list_view)
     void onItemClick(int position) {
         Child child = mChildAdapter.getChild(position);
-
+        String kind = child.kind;
         // TODO: This is lame type checking
-        if (child instanceof Child.Topic) {
-            onTopicItemClick((Child.Topic) child);
-        } else if (child instanceof Child.Video) {
-            onVideoItemClick((Child.Video) child);
-        } else if (child instanceof Child.Exercise) {
-            onExerciseItemClick((Child.Exercise) child);
-        } else if (child instanceof Child.Article) {
-            onArticleItemClick((Child.Article) child);
+        if ("Topic".equalsIgnoreCase(kind)) {
+            onTopicItemClick(child);
+        } else if ("Video".equalsIgnoreCase(kind)) {
+            onVideoItemClick(child);
+        } else if ("Exercise".equalsIgnoreCase(kind)) {
+            onExerciseItemClick(child);
+        } else if ("Article".equalsIgnoreCase(kind)) {
+            onArticleItemClick(child);
         } else {
             onContentItemClick(child);
         }
@@ -140,22 +140,22 @@ public class TopicActivity extends ActionBarActivity {
         Toast.makeText(this, "Oops (Child/" + child.getClass().getSimpleName() + ")", Toast.LENGTH_SHORT).show();
     }
 
-    private void onTopicItemClick(Child.Topic topic) {
+    private void onTopicItemClick(Child topic) {
         Intent intent = TopicActivity.buildIntent(this, topic.translated_title, mTopTopicSlug, topic.id);
         startActivity(intent);
     }
 
-    private void onVideoItemClick(Child.Video video) {
+    private void onVideoItemClick(Child video) {
         Intent intent = VideoPlayerActivity.buildIntent(this, video.id);
         startActivity(intent);
     }
 
-    private void onExerciseItemClick(Child.Exercise exercise) {
+    private void onExerciseItemClick(Child exercise) {
         Intent intent = ExerciseActivity.buildIntent(this, exercise.id);
         startActivity(intent);
     }
 
-    private void onArticleItemClick(Child.Article article) {
+    private void onArticleItemClick(Child article) {
         Intent intent = ArticleActivity.buildIntent(this, article.internal_id);
         startActivity(intent);
     }
@@ -222,6 +222,8 @@ public class TopicActivity extends ActionBarActivity {
                     return R.layout.row_exercise;
                 case (VIEW_TYPE_ARTICLE):
                     return R.layout.row_article;
+                case (VIEW_TYPE_TOPIC):
+                    return R.layout.row_topic;
                 default:
                     return R.layout.row_other;
             }
@@ -229,17 +231,20 @@ public class TopicActivity extends ActionBarActivity {
 
         private void bind(ViewHolder viewHolder, int position) {
             Child child = getChild(position);
-            viewHolder.titleTextView.setText(child.toString());
+            viewHolder.titleTextView.setText(child.translated_title);
         }
 
         @Override
         public int getItemViewType(int position) {
             Child child = getChild(position);
-            if (child instanceof Child.Video) {
+            String kind = child.kind;
+            if ("Topic".equalsIgnoreCase(kind)) {
+                return VIEW_TYPE_TOPIC;
+            } else if ("Video".equalsIgnoreCase(kind)) {
                 return VIEW_TYPE_VIDEO;
-            } else if (child instanceof Child.Exercise) {
+            } else if ("Exercise".equalsIgnoreCase(kind)) {
                 return VIEW_TYPE_EXERCISE;
-            } else if (child instanceof Child.Article) {
+            } else if ("Article".equalsIgnoreCase(kind)) {
                 return VIEW_TYPE_ARTICLE;
             } else {
                 return VIEW_TYPE_OTHER;
