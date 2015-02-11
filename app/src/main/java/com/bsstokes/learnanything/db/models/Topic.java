@@ -1,4 +1,4 @@
-package com.bsstokes.learnanything.db;
+package com.bsstokes.learnanything.db.models;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Index;

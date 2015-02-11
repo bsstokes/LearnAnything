@@ -1,10 +1,12 @@
 package com.bsstokes.learnanything.db;
 
+import com.bsstokes.learnanything.db.models.Topic;
+
 public class TopicConverter {
 
     public static void convert(
             com.bsstokes.learnanything.api.models.Topic apiTopic,
-            com.bsstokes.learnanything.db.Topic dbTopic) {
+            Topic dbTopic) {
 
         dbTopic.setId(apiTopic.id);
         dbTopic.setTitle(apiTopic.translated_title);

@@ -41,7 +41,7 @@ public class TopicTreeActivity extends ActionBarActivity {
 
         realm = Realm.getInstance(this);
 
-        RealmResults<com.bsstokes.learnanything.db.Topic> topics = realm.where(com.bsstokes.learnanything.db.Topic.class)
+        RealmResults<com.bsstokes.learnanything.db.models.Topic> topics = realm.where(com.bsstokes.learnanything.db.models.Topic.class)
                 .equalTo("topLevel", true)
                 .findAll();
         mTopicAdapter = new TopicTreeListAdapter(this, topics);
@@ -76,7 +76,7 @@ public class TopicTreeActivity extends ActionBarActivity {
 
     @OnItemClick(R.id.topic_list_view)
     void onTopicItemClick(int position) {
-        com.bsstokes.learnanything.db.Topic topic = mTopicAdapter.getTopic(position);
+        com.bsstokes.learnanything.db.models.Topic topic = mTopicAdapter.getTopic(position);
         Intent intent = TopicActivity.buildIntent(this, topic.getTitle(), topic.getSlug(), topic.getSlug());
         startActivity(intent);
     }
@@ -90,11 +90,11 @@ public class TopicTreeActivity extends ActionBarActivity {
                 Toast.makeText(TopicTreeActivity.this, "Downloaded topic tree", Toast.LENGTH_SHORT).show();
 
                 for (Topic apiTopic : topicTree.children) {
-                    com.bsstokes.learnanything.db.Topic dbTopic = realm.where(com.bsstokes.learnanything.db.Topic.class)
+                    com.bsstokes.learnanything.db.models.Topic dbTopic = realm.where(com.bsstokes.learnanything.db.models.Topic.class)
                             .equalTo("id", apiTopic.id)
                             .findFirst();
                     if (null == dbTopic) {
-                        dbTopic = new com.bsstokes.learnanything.db.Topic();
+                        dbTopic = new com.bsstokes.learnanything.db.models.Topic();
                         dbTopic.setId(apiTopic.id);
                     }
 
