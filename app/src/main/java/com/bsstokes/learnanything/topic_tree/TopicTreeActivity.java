@@ -14,6 +14,7 @@ import com.bsstokes.learnanything.TopicActivity;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
+import com.bsstokes.learnanything.db.TopicConverter;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -98,9 +99,7 @@ public class TopicTreeActivity extends ActionBarActivity {
                     }
 
                     realm.beginTransaction();
-                    dbTopic.setTitle(apiTopic.translated_title);
-                    dbTopic.setSlug(apiTopic.slug);
-                    dbTopic.setTopLevel(true);
+                    TopicConverter.convert(apiTopic, dbTopic);
                     realm.copyToRealm(dbTopic);
                     realm.commitTransaction();
                 }
