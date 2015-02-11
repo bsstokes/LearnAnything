@@ -1,23 +1,16 @@
 package com.bsstokes.learnanything.topic_tree;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.TopicActivity;
-import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
@@ -26,7 +19,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
 import io.realm.Realm;
-import io.realm.RealmBaseAdapter;
 import io.realm.RealmResults;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -119,56 +111,5 @@ public class TopicTreeActivity extends ActionBarActivity {
 
             }
         });
-    }
-
-    public static class TopicTreeListAdapter extends RealmBaseAdapter<com.bsstokes.learnanything.db.Topic> implements ListAdapter {
-
-        public TopicTreeListAdapter(Context context, RealmResults<com.bsstokes.learnanything.db.Topic> realmResults) {
-            super(context, realmResults, true);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (null == convertView) {
-                convertView = LayoutInflater.from(context).inflate(R.layout.row_topic_tree, parent, false);
-                convertView.setTag(new ViewHolder(convertView));
-            }
-
-            ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-            bind(viewHolder, position);
-
-            return convertView;
-        }
-
-        private void bind(ViewHolder viewHolder, int position) {
-            com.bsstokes.learnanything.db.Topic topic = realmResults.get(position);
-            viewHolder.titleTextView.setText(topic.getTitle());
-            viewHolder.categoryColorView.setVisibility(View.VISIBLE);
-
-            int colorRes = Categories.getColorForCategory(topic.getSlug());
-            int color = context.getResources().getColor(colorRes);
-            viewHolder.categoryColorView.setBackgroundColor(color);
-        }
-
-        public com.bsstokes.learnanything.db.Topic getTopic(int position) {
-            return getRealmResults().get(position);
-        }
-
-        public RealmResults<com.bsstokes.learnanything.db.Topic> getRealmResults() {
-            return realmResults;
-        }
-
-        public static class ViewHolder {
-
-            @InjectView(R.id.topic_title_text_view)
-            TextView titleTextView;
-
-            @InjectView(R.id.category_color_view)
-            View categoryColorView;
-
-            public ViewHolder(View view) {
-                ButterKnife.inject(this, view);
-            }
-        }
     }
 }
