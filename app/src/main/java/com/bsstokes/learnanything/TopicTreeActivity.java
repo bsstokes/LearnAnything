@@ -3,7 +3,6 @@ package com.bsstokes.learnanything;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.ColorRes;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,21 +10,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
+import io.realm.Realm;
+import io.realm.RealmBaseAdapter;
+import io.realm.RealmResults;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -35,7 +35,8 @@ public class TopicTreeActivity extends ActionBarActivity {
     @InjectView(R.id.topic_list_view)
     ListView mTopicListView;
 
-    TopicTreeListAdapter mTopicAdapter;
+    private TopicTreeListAdapter mTopicAdapter;
+    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +44,23 @@ public class TopicTreeActivity extends ActionBarActivity {
         setContentView(R.layout.activity_topic_tree);
         ButterKnife.inject(this);
 
-        mTopicAdapter = new TopicTreeListAdapter(this);
+        realm = Realm.getInstance(this);
+
+        RealmResults<com.bsstokes.learnanything.db.Topic> topics = realm.where(com.bsstokes.learnanything.db.Topic.class)
+                .equalTo("topLevel", true)
+                .findAll();
+        mTopicAdapter = new TopicTreeListAdapter(this, topics);
         mTopicListView.setAdapter(mTopicAdapter);
 
         loadTopicTree();
+
+        Log.d("DB", "Topics: " + topics.size());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close();
     }
 
     @Override
@@ -67,14 +81,9 @@ public class TopicTreeActivity extends ActionBarActivity {
 
     @OnItemClick(R.id.topic_list_view)
     void onTopicItemClick(int position) {
-        TopicTreeListAdapter.TopicItem topicItem = mTopicAdapter.getTopicItem(position);
-        Topic topic = topicItem.getTopic();
-        if (topic.isTopic()) {
-            Intent intent = TopicActivity.buildIntent(this, topic.translated_title, topic.slug, topic.slug);
-            startActivity(intent);
-        } else {
-            Log.e(TAG, "I don't know what kind this is: " + topic.kind);
-        }
+        com.bsstokes.learnanything.db.Topic topic = mTopicAdapter.getTopic(position);
+        Intent intent = TopicActivity.buildIntent(this, topic.getTitle(), topic.getSlug(), topic.getSlug());
+        startActivity(intent);
     }
 
     private void loadTopicTree() {
@@ -82,8 +91,27 @@ public class TopicTreeActivity extends ActionBarActivity {
         khanAcademyClient.getTopicTreeOfKindTopic(new Callback<TopicTree>() {
             @Override
             public void success(TopicTree topicTree, Response response) {
-                mTopicAdapter.clear();
-                mTopicAdapter.addAll(topicTree.children);
+
+                Toast.makeText(TopicTreeActivity.this, "Downloaded topic tree", Toast.LENGTH_SHORT).show();
+
+                for (Topic apiTopic : topicTree.children) {
+
+                    com.bsstokes.learnanything.db.Topic dbTopic = realm.where(com.bsstokes.learnanything.db.Topic.class)
+                            .equalTo("id", apiTopic.id)
+                            .findFirst();
+                    if (null == dbTopic) {
+                        dbTopic = new com.bsstokes.learnanything.db.Topic();
+                        dbTopic.setId(apiTopic.id);
+                    }
+
+                    dbTopic.setTitle(apiTopic.translated_title);
+                    dbTopic.setSlug(apiTopic.slug);
+                    dbTopic.setTopLevel(true);
+
+                    realm.beginTransaction();
+                    realm.copyToRealm(dbTopic);
+                    realm.commitTransaction();
+                }
             }
 
             @Override
@@ -93,52 +121,14 @@ public class TopicTreeActivity extends ActionBarActivity {
         });
     }
 
-    private static final String TAG = TopicTreeActivity.class.getName();
+    public static class TopicTreeListAdapter extends RealmBaseAdapter<com.bsstokes.learnanything.db.Topic> implements ListAdapter {
 
-
-    public static final class TopicTreeListAdapter extends BaseAdapter {
-
-        private Context context;
-        private List<TopicItem> topicItems = new ArrayList<>();
-
-        public TopicTreeListAdapter(Context context) {
-            this.context = context;
-        }
-
-        public void clear() {
-            topicItems.clear();
-        }
-
-        public void addAll(List<Topic> topics) {
-            for (Topic topic : topics) {
-                topicItems.add(new TopicItem(topic));
-            }
-
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public int getCount() {
-            return topicItems.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return getTopicItem(position);
-        }
-
-        public TopicItem getTopicItem(int position) {
-            return topicItems.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
+        public TopicTreeListAdapter(Context context, RealmResults<com.bsstokes.learnanything.db.Topic> realmResults) {
+            super(context, realmResults, true);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-
             if (null == convertView) {
                 convertView = LayoutInflater.from(context).inflate(R.layout.row_topic_tree, parent, false);
                 convertView.setTag(new ViewHolder(convertView));
@@ -151,31 +141,21 @@ public class TopicTreeActivity extends ActionBarActivity {
         }
 
         private void bind(ViewHolder viewHolder, int position) {
-            TopicItem topicItem = topicItems.get(position);
-            viewHolder.titleTextView.setText(topicItem.getTitle());
+            com.bsstokes.learnanything.db.Topic topic = realmResults.get(position);
+            viewHolder.titleTextView.setText(topic.getTitle());
             viewHolder.categoryColorView.setVisibility(View.VISIBLE);
-            viewHolder.categoryColorView.setBackgroundColor(context.getResources().getColor(topicItem.getColor()));
+
+            int colorRes = Categories.getColorForCategory(topic.getSlug());
+            int color = context.getResources().getColor(colorRes);
+            viewHolder.categoryColorView.setBackgroundColor(color);
         }
 
-        public static class TopicItem {
-            private Topic topic;
+        public com.bsstokes.learnanything.db.Topic getTopic(int position) {
+            return getRealmResults().get(position);
+        }
 
-            public TopicItem(Topic topic) {
-                this.topic = topic;
-            }
-
-            public String getTitle() {
-                return topic.translated_title;
-            }
-
-            @ColorRes
-            public int getColor() {
-                return Categories.getColorForCategory(topic.slug);
-            }
-
-            public Topic getTopic() {
-                return topic;
-            }
+        public RealmResults<com.bsstokes.learnanything.db.Topic> getRealmResults() {
+            return realmResults;
         }
 
         public static class ViewHolder {

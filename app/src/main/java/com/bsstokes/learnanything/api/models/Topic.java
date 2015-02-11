@@ -6,6 +6,7 @@ public class Topic {
 
     public static final String KIND_TOPIC = "Topic";
 
+    public String id;
     public String translated_title;
     public String slug;
     public String kind;
