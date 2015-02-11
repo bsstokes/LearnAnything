@@ -1,4 +1,4 @@
-package com.bsstokes.learnanything;
+package com.bsstokes.learnanything.topic_tree;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +15,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsstokes.learnanything.R;
+import com.bsstokes.learnanything.TopicActivity;
 import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Topic;
@@ -95,7 +97,6 @@ public class TopicTreeActivity extends ActionBarActivity {
                 Toast.makeText(TopicTreeActivity.this, "Downloaded topic tree", Toast.LENGTH_SHORT).show();
 
                 for (Topic apiTopic : topicTree.children) {
-
                     com.bsstokes.learnanything.db.Topic dbTopic = realm.where(com.bsstokes.learnanything.db.Topic.class)
                             .equalTo("id", apiTopic.id)
                             .findFirst();
@@ -104,11 +105,10 @@ public class TopicTreeActivity extends ActionBarActivity {
                         dbTopic.setId(apiTopic.id);
                     }
 
+                    realm.beginTransaction();
                     dbTopic.setTitle(apiTopic.translated_title);
                     dbTopic.setSlug(apiTopic.slug);
                     dbTopic.setTopLevel(true);
-
-                    realm.beginTransaction();
                     realm.copyToRealm(dbTopic);
                     realm.commitTransaction();
                 }
