@@ -23,13 +23,18 @@
         <activity
             android:name=".TopicActivity"
             android:configChanges="orientation|screenSize"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Light.DarkActionBar" />
         <activity
             android:name=".VideoPlayerActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ExerciseActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ArticleActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait" />
     </application>

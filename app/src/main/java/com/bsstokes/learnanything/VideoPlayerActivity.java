@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,13 +45,14 @@ public class VideoPlayerActivity extends ActionBarActivity {
     TextView mDescriptionTextView;
 
     private String mVideoId;
-    private Video mVideo;
+    private VideoAdapter mVideoAdapter = new VideoAdapter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_player);
         ButterKnife.inject(this);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
@@ -60,50 +63,111 @@ public class VideoPlayerActivity extends ActionBarActivity {
         client.getVideo(mVideoId, new Callback<Video>() {
             @Override
             public void success(Video video, Response response) {
-                mVideo = video;
+                mVideoAdapter.setVideo(video);
                 updateUI();
             }
 
             @Override
             public void failure(RetrofitError error) {
-
+                Toast.makeText(VideoPlayerActivity.this, "Oops. Download failed!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void updateUI() {
-        if (null == mVideo) {
-            return;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (android.R.id.home == item.getItemId()) {
+            onBackPressed();
+            return true;
         }
 
-        setTitle(mVideo.translated_title);
-        mTitleTextView.setText(mVideo.translated_title);
-
-        mDescriptionTextView.setText(Html.fromHtml(mVideo.translated_description_html));
-
-        String imageUrl = getImageUrl(mVideo);
-        Picasso.with(this).load(imageUrl).into(mVideoImageView);
-
-        String message = mVideo.translated_title + "/" + mVideo.url;
-        Toast.makeText(VideoPlayerActivity.this, message, Toast.LENGTH_SHORT).show();
+        return super.onOptionsItemSelected(item);
     }
 
-    private String getImageUrl(Video video) {
-        if (null != video.download_urls && video.download_urls.containsKey("png")) {
-            Log.d("BS", "Using download_urls[png]");
-            return video.download_urls.get("png");
+    private void updateUI() {
+        setTitle(mVideoAdapter.getTitle());
+        mTitleTextView.setText(mVideoAdapter.getTitle());
+
+        if (mVideoAdapter.hasHtmlDescription()) {
+            mDescriptionTextView.setVisibility(View.VISIBLE);
+            mDescriptionTextView.setText(Html.fromHtml(mVideoAdapter.getHtmlDescription()));
         } else {
-            Log.d("BS", "Using image_url");
-            return video.image_url;
+            mDescriptionTextView.setVisibility(View.GONE);
         }
+
+        String imageUrl = mVideoAdapter.getImageUrl();
+        Picasso.with(this).load(imageUrl).into(mVideoImageView);
+
+        String message = mVideoAdapter.getTitle() + "/" + mVideoAdapter.getImageUrl();
+        Toast.makeText(VideoPlayerActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 
     @OnClick(R.id.video_image_view)
     void onClickVideoImageView() {
-        if (null != mVideo && !TextUtils.isEmpty(mVideo.url)) {
-            Uri uri = Uri.parse(mVideo.url);
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            startActivity(intent);
+        onOpenVideo();
+    }
+
+    @OnClick(R.id.watch_video_button)
+    void onClickWatchVideoButton() {
+        onOpenVideo();
+    }
+
+    private void onOpenVideo() {
+        String videoUrl = mVideoAdapter.getVideoUrl();
+        if (null != videoUrl && !TextUtils.isEmpty(videoUrl)) {
+            openVideoUrl(videoUrl);
+        }
+    }
+
+    private void openVideoUrl(@NonNull String videoUrl) {
+        Uri uri = Uri.parse(videoUrl);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
+    }
+
+    private static class VideoAdapter {
+        private Video video;
+
+        public void setVideo(Video video) {
+            this.video = video;
+        }
+
+        public String getTitle() {
+            if (null == video) {
+                return null;
+            } else {
+                return video.translated_title;
+            }
+        }
+
+        public String getHtmlDescription() {
+            if (null == video) {
+                return null;
+            } else {
+                return video.translated_description_html;
+            }
+        }
+
+        public boolean hasHtmlDescription() {
+            return !TextUtils.isEmpty(getHtmlDescription());
+        }
+
+        public String getImageUrl() {
+            if (null == video) {
+                return null;
+            } else if (null != video.download_urls && video.download_urls.containsKey("png")) {
+                return video.download_urls.get("png");
+            } else {
+                return video.image_url;
+            }
+        }
+
+        public String getVideoUrl() {
+            if (null == video) {
+                return null;
+            } else {
+                return video.url;
+            }
         }
     }
 }

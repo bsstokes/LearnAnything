@@ -1,6 +1,7 @@
 package com.bsstokes.learnanything.api;
 
 import com.bsstokes.learnanything.BuildConfig;
+import com.bsstokes.learnanything.api.models.Article;
 import com.bsstokes.learnanything.api.models.Child;
 import com.bsstokes.learnanything.api.models.Exercise;
 import com.bsstokes.learnanything.api.models.Topic;
@@ -31,6 +32,9 @@ public class KhanAcademyApi {
 
         @GET("/exercises/{exercise_name}")
         void getExercise(@Path("exercise_name") String exerciseName, Callback<Exercise> callback);
+
+        @GET("/articles/{article_internal_id}")
+        void getArticle(@Path("article_internal_id") String articleInternalId, Callback<Article> callback);
     }
 
     public static class Client {
@@ -73,6 +77,10 @@ public class KhanAcademyApi {
 
         public void getExercise(String exerciseName, Callback<Exercise> callback) {
             mService.getExercise(exerciseName, callback);
+        }
+
+        public void getArticle(String articleInternalId, Callback<Article> callback) {
+            mService.getArticle(articleInternalId, callback);
         }
     }
 }

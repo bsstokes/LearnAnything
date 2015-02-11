@@ -18,31 +18,15 @@ public class Child {
     }
 
     public static class Topic extends Child {
-        @Override
-        public String toString() {
-            return super.toString() + " (Topic)";
-        }
     }
 
     public static class Video extends Child {
-        @Override
-        public String toString() {
-            return super.toString() + " (Video)";
-        }
     }
 
     public static class Exercise extends Child {
-        @Override
-        public String toString() {
-            return super.toString() + " (Exercise)";
-        }
     }
 
     public static class Article extends Child {
-        @Override
-        public String toString() {
-            return super.toString() + " (Article)";
-        }
     }
 
     public static class Unknown extends Child {
