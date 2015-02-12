@@ -7,7 +7,6 @@ import android.content.Intent;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
-import com.bsstokes.learnanything.db.TopicConverter;
 import com.crashlytics.android.Crashlytics;
 
 import io.realm.Realm;

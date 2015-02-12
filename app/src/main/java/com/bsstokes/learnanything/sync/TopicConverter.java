@@ -1,4 +1,4 @@
-package com.bsstokes.learnanything.db;
+package com.bsstokes.learnanything.sync;
 
 import com.bsstokes.learnanything.db.models.Topic;
 
