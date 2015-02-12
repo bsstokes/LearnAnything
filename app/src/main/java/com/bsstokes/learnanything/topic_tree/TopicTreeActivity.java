@@ -9,6 +9,7 @@ import android.widget.ListView;
 
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.TopicActivity;
+import com.bsstokes.learnanything.db.RealmUtils;
 import com.bsstokes.learnanything.db.models.Topic;
 import com.bsstokes.learnanything.sync.SyncService;
 
@@ -34,13 +35,11 @@ public class TopicTreeActivity extends ActionBarActivity {
 
         realm = Realm.getInstance(this);
 
-        RealmResults<com.bsstokes.learnanything.db.models.Topic> topics = realm.where(com.bsstokes.learnanything.db.models.Topic.class)
-                .equalTo("topLevel", true)
-                .findAll();
+        RealmResults<Topic> topics = RealmUtils.getTopLevelTopics(realm);
         mTopicAdapter = new TopicTreeListAdapter(this, topics);
         mTopicListView.setAdapter(mTopicAdapter);
 
-        loadTopicTree();
+        requestSync();
 
         Log.d("DB", "Topics: " + topics.size());
     }
@@ -60,7 +59,7 @@ public class TopicTreeActivity extends ActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (R.id.action_refresh == item.getItemId()) {
-            loadTopicTree();
+            requestSync();
             return true;
         }
 
@@ -69,12 +68,11 @@ public class TopicTreeActivity extends ActionBarActivity {
 
     @OnItemClick(R.id.topic_list_view)
     void onTopicItemClick(int position) {
-        com.bsstokes.learnanything.db.models.Topic topic = mTopicAdapter.getTopic(position);
-        Intent intent = TopicActivity.buildIntent(this, topic.getTitle(), topic.getSlug(), topic.getSlug());
-        startActivity(intent);
+        Topic topic = mTopicAdapter.getTopic(position);
+        TopicActivity.startActivity(this, topic.getTitle(), topic.getSlug());
     }
 
-    private void loadTopicTree() {
+    private void requestSync() {
         SyncService.startActionSyncTopicTree(this);
     }
 }
