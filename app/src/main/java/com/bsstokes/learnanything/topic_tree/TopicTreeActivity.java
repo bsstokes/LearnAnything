@@ -96,10 +96,12 @@ public class TopicTreeActivity extends ActionBarActivity {
                     if (null == dbTopic) {
                         dbTopic = new com.bsstokes.learnanything.db.models.Topic();
                         dbTopic.setId(apiTopic.id);
+                        dbTopic.setTopLevel(true);
                     }
 
                     realm.beginTransaction();
                     TopicConverter.convert(apiTopic, dbTopic);
+                    dbTopic.setTopLevel(true);
                     realm.copyToRealm(dbTopic);
                     realm.commitTransaction();
                 }
