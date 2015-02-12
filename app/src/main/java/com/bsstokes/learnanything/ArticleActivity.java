@@ -47,8 +47,8 @@ public class ArticleActivity extends ActionBarActivity {
             mArticleInternalId = extras.getString(EXTRA_ARTICLE_INTERNAL_ID, mArticleInternalId);
         }
 
-        KhanAcademyApi.Client apiClient = new KhanAcademyApi.Client();
-        apiClient.getArticle(mArticleInternalId, new Callback<Article>() {
+        KhanAcademyApi api = new KhanAcademyApi();
+        api.getArticle(mArticleInternalId, new Callback<Article>() {
             @Override
             public void success(Article article, Response response) {
                 mArticle = article;

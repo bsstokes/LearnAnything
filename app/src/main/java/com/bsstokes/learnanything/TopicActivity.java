@@ -82,8 +82,8 @@ public class TopicActivity extends ActionBarActivity {
 
         setTitle(mTitle);
 
-        KhanAcademyApi.Client apiClient = new KhanAcademyApi.Client();
-        apiClient.getTopic(mTopicSlug, new Callback<Topic>() {
+        KhanAcademyApi api = new KhanAcademyApi();
+        api.getTopic(mTopicSlug, new Callback<Topic>() {
             @Override
             public void success(Topic topic, Response response) {
                 String message = String.format(Locale.getDefault(), "%s, %s, %s",

@@ -36,11 +36,11 @@ public class SyncService extends IntentService {
 
     private void handleActionSyncTopicTree() {
 
-        KhanAcademyApi.Client apiClient = new KhanAcademyApi.Client();
+        KhanAcademyApi api = new KhanAcademyApi();
 
         TopicTree topicTree;
         try {
-            topicTree = apiClient.getTopicTreeOfKindTopic();
+            topicTree = api.getTopicTreeOfKindTopic();
         } catch (KhanAcademyApi.ApiException e) {
             // TODO: Log exception
             return;

@@ -59,8 +59,8 @@ public class VideoPlayerActivity extends ActionBarActivity {
             mVideoId = extras.getString(EXTRA_VIDEO_ID, mVideoId);
         }
 
-        KhanAcademyApi.Client client = new KhanAcademyApi.Client();
-        client.getVideo(mVideoId, new Callback<Video>() {
+        KhanAcademyApi api = new KhanAcademyApi();
+        api.getVideo(mVideoId, new Callback<Video>() {
             @Override
             public void success(Video video, Response response) {
                 mVideoAdapter.setVideo(video);

@@ -36,42 +36,39 @@ public class KhanAcademyApi {
         void getArticle(@Path("article_internal_id") String articleInternalId, Callback<Article> callback);
     }
 
-    public static class Client {
+    private KhanAcademyService mService;
 
-        protected KhanAcademyService mService;
+    public KhanAcademyApi() {
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint("http://www.khanacademy.org/api/v1/")
+                .setLogLevel(BuildConfig.DEBUG ? RestAdapter.LogLevel.BASIC : RestAdapter.LogLevel.NONE)
+                .build();
 
-        public Client() {
-            RestAdapter restAdapter = new RestAdapter.Builder()
-                    .setEndpoint("http://www.khanacademy.org/api/v1/")
-                    .setLogLevel(BuildConfig.DEBUG ? RestAdapter.LogLevel.BASIC : RestAdapter.LogLevel.NONE)
-                    .build();
+        mService = restAdapter.create(KhanAcademyService.class);
+    }
 
-            mService = restAdapter.create(KhanAcademyService.class);
-        }
+    public void getTopicTreeOfKindTopic(Callback<TopicTree> callback) {
+        mService.getTopicTree("Topic", callback);
+    }
 
-        public void getTopicTreeOfKindTopic(Callback<TopicTree> callback) {
-            mService.getTopicTree("Topic", callback);
-        }
+    public TopicTree getTopicTreeOfKindTopic() throws ApiException {
+        return mService.getTopicTree("Topic");
+    }
 
-        public TopicTree getTopicTreeOfKindTopic() throws ApiException {
-            return mService.getTopicTree("Topic");
-        }
+    public void getTopic(String topicSlug, Callback<Topic> callback) {
+        mService.getTopic(topicSlug, callback);
+    }
 
-        public void getTopic(String topicSlug, Callback<Topic> callback) {
-            mService.getTopic(topicSlug, callback);
-        }
+    public void getVideo(String videoId, Callback<Video> callback) {
+        mService.getVideo(videoId, callback);
+    }
 
-        public void getVideo(String videoId, Callback<Video> callback) {
-            mService.getVideo(videoId, callback);
-        }
+    public void getExercise(String exerciseName, Callback<Exercise> callback) {
+        mService.getExercise(exerciseName, callback);
+    }
 
-        public void getExercise(String exerciseName, Callback<Exercise> callback) {
-            mService.getExercise(exerciseName, callback);
-        }
-
-        public void getArticle(String articleInternalId, Callback<Article> callback) {
-            mService.getArticle(articleInternalId, callback);
-        }
+    public void getArticle(String articleInternalId, Callback<Article> callback) {
+        mService.getArticle(articleInternalId, callback);
     }
 
     public class ApiException extends Exception {

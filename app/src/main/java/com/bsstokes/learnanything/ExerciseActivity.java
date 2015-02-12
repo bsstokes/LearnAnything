@@ -55,8 +55,8 @@ public class ExerciseActivity extends ActionBarActivity {
             mExerciseName = extras.getString(EXTRA_EXERCISE_NAME, mExerciseName);
         }
 
-        KhanAcademyApi.Client apiClient = new KhanAcademyApi.Client();
-        apiClient.getExercise(mExerciseName, new Callback<Exercise>() {
+        KhanAcademyApi api = new KhanAcademyApi();
+        api.getExercise(mExerciseName, new Callback<Exercise>() {
             @Override
             public void success(Exercise exercise, Response response) {
                 mExercise = exercise;
