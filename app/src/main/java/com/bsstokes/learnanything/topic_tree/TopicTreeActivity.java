@@ -15,6 +15,7 @@ import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
 import com.bsstokes.learnanything.db.TopicConverter;
+import com.bsstokes.learnanything.sync.SyncService;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -82,35 +83,6 @@ public class TopicTreeActivity extends ActionBarActivity {
     }
 
     private void loadTopicTree() {
-        KhanAcademyApi.Client khanAcademyClient = new KhanAcademyApi.Client();
-        khanAcademyClient.getTopicTreeOfKindTopic(new Callback<TopicTree>() {
-            @Override
-            public void success(TopicTree topicTree, Response response) {
-
-                Toast.makeText(TopicTreeActivity.this, "Downloaded topic tree", Toast.LENGTH_SHORT).show();
-
-                for (Topic apiTopic : topicTree.children) {
-                    com.bsstokes.learnanything.db.models.Topic dbTopic = realm.where(com.bsstokes.learnanything.db.models.Topic.class)
-                            .equalTo("id", apiTopic.id)
-                            .findFirst();
-                    if (null == dbTopic) {
-                        dbTopic = new com.bsstokes.learnanything.db.models.Topic();
-                        dbTopic.setId(apiTopic.id);
-                        dbTopic.setTopLevel(true);
-                    }
-
-                    realm.beginTransaction();
-                    TopicConverter.convert(apiTopic, dbTopic);
-                    dbTopic.setTopLevel(true);
-                    realm.copyToRealm(dbTopic);
-                    realm.commitTransaction();
-                }
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
+        SyncService.startActionSyncTopicTree(this);
     }
 }

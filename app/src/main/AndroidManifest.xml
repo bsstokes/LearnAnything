@@ -37,6 +37,10 @@
             android:name=".ArticleActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait" />
+
+        <service
+            android:name=".sync.SyncService"
+            android:exported="false" />
     </application>
 
 </manifest>
