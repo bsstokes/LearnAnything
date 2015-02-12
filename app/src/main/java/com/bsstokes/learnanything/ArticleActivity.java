@@ -23,10 +23,10 @@ public class ArticleActivity extends ActionBarActivity {
 
     public static final String EXTRA_ARTICLE_INTERNAL_ID = "articleInternalId";
 
-    public static Intent buildIntent(Context context, String articleInternalId) {
+    public static void startActivity(Context context, String articleInternalId) {
         Intent intent = new Intent(context, ArticleActivity.class);
         intent.putExtra(EXTRA_ARTICLE_INTERNAL_ID, articleInternalId);
-        return intent;
+        context.startActivity(intent);
     }
 
     @InjectView(R.id.content_web_view)

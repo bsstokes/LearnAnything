@@ -29,10 +29,10 @@ public class VideoPlayerActivity extends ActionBarActivity {
 
     public static final String EXTRA_VIDEO_ID = "videoId";
 
-    public static Intent buildIntent(Context context, String videoId) {
+    public static void startActivity(Context context, String videoId) {
         Intent intent = new Intent(context, VideoPlayerActivity.class);
         intent.putExtra(EXTRA_VIDEO_ID, videoId);
-        return intent;
+        context.startActivity(intent);
     }
 
     @InjectView(R.id.video_image_view)

@@ -34,7 +34,11 @@ import retrofit.client.Response;
 
 public class TopicActivity extends ActionBarActivity {
 
-    public static Intent buildIntent(Context context, String title, String topTopicSlug, String topicSlug) {
+    public static void startActivity(Context context, String title, String topicSlug) {
+        startActivity(context, title, topicSlug, topicSlug);
+    }
+
+    public static void startActivity(Context context, String title, String topTopicSlug, String topicSlug) {
 
         if (TextUtils.isEmpty(topTopicSlug)) {
             throw new RuntimeException("Top topic slug (" + EXTRA_TOP_TOPIC_SLUG + ") can't be empty");
@@ -48,7 +52,7 @@ public class TopicActivity extends ActionBarActivity {
         intent.putExtra(EXTRA_TITLE, title);
         intent.putExtra(EXTRA_TOP_TOPIC_SLUG, topTopicSlug);
         intent.putExtra(EXTRA_TOPIC_SLUG, topicSlug);
-        return intent;
+        context.startActivity(intent);
     }
 
     public static final String EXTRA_TITLE = "title";
@@ -141,23 +145,19 @@ public class TopicActivity extends ActionBarActivity {
     }
 
     private void onTopicItemClick(Child topic) {
-        Intent intent = TopicActivity.buildIntent(this, topic.translated_title, mTopTopicSlug, topic.id);
-        startActivity(intent);
+        startActivity(this, topic.translated_title, mTopTopicSlug, topic.id);
     }
 
     private void onVideoItemClick(Child video) {
-        Intent intent = VideoPlayerActivity.buildIntent(this, video.id);
-        startActivity(intent);
+        VideoPlayerActivity.startActivity(this, video.id);
     }
 
     private void onExerciseItemClick(Child exercise) {
-        Intent intent = ExerciseActivity.buildIntent(this, exercise.id);
-        startActivity(intent);
+        ExerciseActivity.startActivity(this, exercise.id);
     }
 
     private void onArticleItemClick(Child article) {
-        Intent intent = ArticleActivity.buildIntent(this, article.internal_id);
-        startActivity(intent);
+        ArticleActivity.startActivity(this, article.internal_id);
     }
 
     public static class TopicListAdapter extends BaseAdapter {

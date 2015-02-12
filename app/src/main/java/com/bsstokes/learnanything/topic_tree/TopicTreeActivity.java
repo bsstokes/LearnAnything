@@ -1,6 +1,5 @@
 package com.bsstokes.learnanything.topic_tree;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -10,6 +9,7 @@ import android.widget.ListView;
 
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.TopicActivity;
+import com.bsstokes.learnanything.db.models.Topic;
 import com.bsstokes.learnanything.sync.SyncService;
 
 import butterknife.ButterKnife;

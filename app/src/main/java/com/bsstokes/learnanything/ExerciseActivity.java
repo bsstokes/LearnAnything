@@ -25,10 +25,10 @@ public class ExerciseActivity extends ActionBarActivity {
 
     public static final String EXTRA_EXERCISE_NAME = "exerciseName";
 
-    public static Intent buildIntent(Context context, String exerciseName) {
+    public static void startActivity(Context context, String exerciseName) {
         Intent intent = new Intent(context, ExerciseActivity.class);
         intent.putExtra(EXTRA_EXERCISE_NAME, exerciseName);
-        return intent;
+        context.startActivity(intent);
     }
 
     @InjectView(R.id.exercise_image_view)
