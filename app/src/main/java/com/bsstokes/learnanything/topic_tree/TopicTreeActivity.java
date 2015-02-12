@@ -20,6 +20,7 @@ import com.bsstokes.learnanything.sync.SyncService;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
+import com.crashlytics.android.Crashlytics;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import retrofit.Callback;
