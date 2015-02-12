@@ -7,25 +7,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.TopicActivity;
-import com.bsstokes.learnanything.api.KhanAcademyApi;
-import com.bsstokes.learnanything.api.models.Topic;
-import com.bsstokes.learnanything.api.models.TopicTree;
-import com.bsstokes.learnanything.db.TopicConverter;
 import com.bsstokes.learnanything.sync.SyncService;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
-import com.crashlytics.android.Crashlytics;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 public class TopicTreeActivity extends ActionBarActivity {
 
