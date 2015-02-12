@@ -8,6 +8,7 @@ import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
 import com.bsstokes.learnanything.db.TopicConverter;
+import com.crashlytics.android.Crashlytics;
 
 import io.realm.Realm;
 
@@ -42,11 +43,14 @@ public class SyncService extends IntentService {
         try {
             topicTree = api.getTopicTreeOfKindTopic();
         } catch (KhanAcademyApi.ApiException e) {
-            // TODO: Log exception
+            Crashlytics.log("Failed to get topic tree");
+            Crashlytics.logException(e);
+            Crashlytics.logException(e.getRetrofitError());
             return;
         }
 
         if (null == topicTree) {
+            Crashlytics.logException(new Exception("Failed to get a topic tree"));
             return;
         }
 
