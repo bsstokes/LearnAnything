@@ -9,6 +9,7 @@ import com.bsstokes.learnanything.api.models.Video;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
@@ -18,6 +19,9 @@ public class KhanAcademyApi {
     protected interface KhanAcademyService {
         @GET("/topictree")
         void getTopicTree(@Query("kind") String kind, Callback<TopicTree> callback);
+
+        @GET("/topictree")
+        TopicTree getTopicTree(@Query("kind") String kind);
 
         @GET("/topic/{topic_slug}")
         void getTopic(@Path("topic_slug") String topicSlug, Callback<Topic> callback);
@@ -49,6 +53,10 @@ public class KhanAcademyApi {
             mService.getTopicTree("Topic", callback);
         }
 
+        public TopicTree getTopicTreeOfKindTopic() throws ApiException {
+            return mService.getTopicTree("Topic");
+        }
+
         public void getTopic(String topicSlug, Callback<Topic> callback) {
             mService.getTopic(topicSlug, callback);
         }
@@ -63,6 +71,18 @@ public class KhanAcademyApi {
 
         public void getArticle(String articleInternalId, Callback<Article> callback) {
             mService.getArticle(articleInternalId, callback);
+        }
+    }
+
+    public class ApiException extends Exception {
+        private RetrofitError retrofitError;
+
+        public ApiException(RetrofitError retrofitError) {
+            this.retrofitError = retrofitError;
+        }
+
+        public RetrofitError getRetrofitError() {
+            return retrofitError;
         }
     }
 }
