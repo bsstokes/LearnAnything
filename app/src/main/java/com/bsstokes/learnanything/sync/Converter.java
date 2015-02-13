@@ -1,12 +1,10 @@
 package com.bsstokes.learnanything.sync;
 
-import com.bsstokes.learnanything.db.models.Topic;
-
-public class TopicConverter {
+public class Converter {
 
     public static void convert(
             com.bsstokes.learnanything.api.models.Topic apiTopic,
-            Topic dbTopic) {
+            com.bsstokes.learnanything.db.models.Topic dbTopic) {
 
         dbTopic.setId(apiTopic.id);
         dbTopic.setTitle(apiTopic.translated_title);

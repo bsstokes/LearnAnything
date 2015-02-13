@@ -4,13 +4,6 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 
-import com.bsstokes.learnanything.api.KhanAcademyApi;
-import com.bsstokes.learnanything.api.models.Topic;
-import com.bsstokes.learnanything.api.models.TopicTree;
-import com.crashlytics.android.Crashlytics;
-
-import io.realm.Realm;
-
 public class SyncService extends IntentService {
     private static final String ACTION_SYNC_TOPIC_TREE = "com.bsstokes.learnanything.sync.action.SYNC_TOPIC_LIST";
 
@@ -35,44 +28,6 @@ public class SyncService extends IntentService {
     }
 
     private void handleActionSyncTopicTree() {
-
-        KhanAcademyApi api = new KhanAcademyApi();
-
-        TopicTree topicTree;
-        try {
-            topicTree = api.getTopicTreeOfKindTopic();
-        } catch (KhanAcademyApi.ApiException e) {
-            Crashlytics.log("Failed to get topic tree");
-            Crashlytics.logException(e);
-            Crashlytics.logException(e.getRetrofitError());
-            return;
-        }
-
-        if (null == topicTree) {
-            Crashlytics.logException(new Exception("Failed to get a topic tree"));
-            return;
-        }
-
-        // Create the realm on this Service's worker thread
-        final Realm realm = Realm.getInstance(this);
-
-        for (Topic apiTopic : topicTree.children) {
-            com.bsstokes.learnanything.db.models.Topic dbTopic = realm.where(com.bsstokes.learnanything.db.models.Topic.class)
-                    .equalTo("id", apiTopic.id)
-                    .findFirst();
-            if (null == dbTopic) {
-                dbTopic = new com.bsstokes.learnanything.db.models.Topic();
-                dbTopic.setId(apiTopic.id);
-                dbTopic.setTopLevel(true);
-            }
-
-            realm.beginTransaction();
-            TopicConverter.convert(apiTopic, dbTopic);
-            dbTopic.setTopLevel(true);
-            realm.copyToRealm(dbTopic);
-            realm.commitTransaction();
-        }
-
-        realm.close();
+        Syncer.syncTopicTree(this);
     }
 }

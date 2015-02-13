@@ -35,7 +35,7 @@ public class TopicTreeActivity extends ActionBarActivity {
 
         realm = Realm.getInstance(this);
 
-        RealmResults<Topic> topics = RealmUtils.getTopLevelTopics(realm);
+        RealmResults<Topic> topics = RealmUtils.findAllTopLevelTopics(realm);
         mTopicAdapter = new TopicTreeListAdapter(this, topics);
         mTopicListView.setAdapter(mTopicAdapter);
 
