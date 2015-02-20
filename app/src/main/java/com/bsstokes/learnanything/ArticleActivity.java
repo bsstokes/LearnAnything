@@ -2,13 +2,17 @@ package com.bsstokes.learnanything;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebView;
+import android.widget.TextView;
 
+import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Article;
 import com.squareup.phrase.Phrase;
@@ -22,18 +26,30 @@ import retrofit.client.Response;
 public class ArticleActivity extends ActionBarActivity {
 
     public static final String EXTRA_ARTICLE_INTERNAL_ID = "articleInternalId";
+    public static final String EXTRA_ARTICLE_TITLE = "articleTitle";
+    public static final String EXTRA_TOP_TOPIC_SLUG = "topTopicSlug";
 
-    public static void startActivity(Context context, String articleInternalId) {
+    public static void startActivity(Context context, String articleInternalId, String articleTitle, String topTopicSlug) {
         Intent intent = new Intent(context, ArticleActivity.class);
         intent.putExtra(EXTRA_ARTICLE_INTERNAL_ID, articleInternalId);
+        intent.putExtra(EXTRA_ARTICLE_TITLE, articleTitle);
+        intent.putExtra(EXTRA_TOP_TOPIC_SLUG, topTopicSlug);
         context.startActivity(intent);
     }
+
+    @InjectView(R.id.header_section)
+    View mHeaderSection;
+
+    @InjectView(R.id.title_text_view)
+    TextView mTitleTextView;
 
     @InjectView(R.id.content_web_view)
     WebView mContentWebView;
 
     private Article mArticle;
     private String mArticleInternalId;
+    private String mArticleTitle;
+    private String mTopTopicSlug;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +57,13 @@ public class ArticleActivity extends ActionBarActivity {
         setContentView(R.layout.activity_article);
         ButterKnife.inject(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
             mArticleInternalId = extras.getString(EXTRA_ARTICLE_INTERNAL_ID, mArticleInternalId);
+            mArticleTitle = extras.getString(EXTRA_ARTICLE_TITLE, mArticleTitle);
+            mTopTopicSlug = extras.getString(EXTRA_TOP_TOPIC_SLUG, mTopTopicSlug);
         }
 
         KhanAcademyApi api = new KhanAcademyApi();
@@ -60,6 +79,16 @@ public class ArticleActivity extends ActionBarActivity {
 
             }
         });
+
+        configureColors();
+        updateUI();
+    }
+
+    private void configureColors() {
+        int colorResId = Categories.getColorForCategory(mTopTopicSlug);
+        int color = getResources().getColor(colorResId);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
+        mHeaderSection.setBackgroundColor(color);
     }
 
     @Override
@@ -85,11 +114,15 @@ public class ArticleActivity extends ActionBarActivity {
 
     private void updateUI() {
         if (null == mArticle) {
+            setTitle(mArticleTitle);
+            mTitleTextView.setText(mArticleTitle);
+
             return;
         }
 
         String title = mArticle.translated_title;
         setTitle(title);
+        mTitleTextView.setText(title);
 
         String htmlContent = mArticle.translated_html_content;
         String htmlPage = HtmlPageGenerator.generateHtmlPage(htmlContent);

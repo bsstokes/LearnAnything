@@ -2,14 +2,17 @@ package com.bsstokes.learnanything;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Exercise;
 import com.squareup.picasso.Picasso;
@@ -23,16 +26,23 @@ import retrofit.client.Response;
 
 public class ExerciseActivity extends ActionBarActivity {
 
-    public static final String EXTRA_EXERCISE_NAME = "exerciseName";
+    public static final String EXTRA_EXERCISE_ID = "exerciseId";
+    public static final String EXTRA_EXERCISE_TITLE = "exerciseTitle";
+    public static final String EXTRA_TOP_TOPIC_SLUG = "topTopicSlug";
 
-    public static void startActivity(Context context, String exerciseName) {
+    public static void startActivity(Context context, String exerciseId, String exerciseTitle, String topTopicSlug) {
         Intent intent = new Intent(context, ExerciseActivity.class);
-        intent.putExtra(EXTRA_EXERCISE_NAME, exerciseName);
+        intent.putExtra(EXTRA_EXERCISE_ID, exerciseId);
+        intent.putExtra(EXTRA_EXERCISE_TITLE, exerciseTitle);
+        intent.putExtra(EXTRA_TOP_TOPIC_SLUG, topTopicSlug);
         context.startActivity(intent);
     }
 
     @InjectView(R.id.exercise_image_view)
     ImageView mExerciseImageView;
+
+    @InjectView(R.id.header_section)
+    View mHeaderSection;
 
     @InjectView(R.id.title_text_view)
     TextView mTitleTextView;
@@ -41,7 +51,9 @@ public class ExerciseActivity extends ActionBarActivity {
     TextView mDescriptionTextView;
 
     private Exercise mExercise;
-    private String mExerciseName;
+    private String mExerciseId;
+    private String mExerciseTitle;
+    private String mTopTopicSlug;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,14 +61,17 @@ public class ExerciseActivity extends ActionBarActivity {
         setContentView(R.layout.activity_exercise);
         ButterKnife.inject(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
-            mExerciseName = extras.getString(EXTRA_EXERCISE_NAME, mExerciseName);
+            mExerciseId = extras.getString(EXTRA_EXERCISE_ID, mExerciseId);
+            mExerciseTitle = extras.getString(EXTRA_EXERCISE_TITLE, mExerciseTitle);
+            mTopTopicSlug = extras.getString(EXTRA_TOP_TOPIC_SLUG, mTopTopicSlug);
         }
 
         KhanAcademyApi api = new KhanAcademyApi();
-        api.getExercise(mExerciseName, new Callback<Exercise>() {
+        api.getExercise(mExerciseId, new Callback<Exercise>() {
             @Override
             public void success(Exercise exercise, Response response) {
                 mExercise = exercise;
@@ -68,6 +83,16 @@ public class ExerciseActivity extends ActionBarActivity {
 
             }
         });
+
+        configureColors();
+        updateUI();
+    }
+
+    private void configureColors() {
+        int colorResId = Categories.getColorForCategory(mTopTopicSlug);
+        int color = getResources().getColor(colorResId);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
+        mHeaderSection.setBackgroundColor(color);
     }
 
     @Override
@@ -82,6 +107,9 @@ public class ExerciseActivity extends ActionBarActivity {
 
     private void updateUI() {
         if (null == mExercise) {
+            setTitle(mExerciseTitle);
+            mTitleTextView.setText(mExerciseTitle);
+
             return;
         }
 

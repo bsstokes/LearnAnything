@@ -149,15 +149,15 @@ public class TopicActivity extends ActionBarActivity {
     }
 
     private void onVideoItemClick(Child video) {
-        VideoPlayerActivity.startActivity(this, video.id);
+        VideoPlayerActivity.startActivity(this, video.id, video.translated_title, mTopTopicSlug);
     }
 
     private void onExerciseItemClick(Child exercise) {
-        ExerciseActivity.startActivity(this, exercise.id);
+        ExerciseActivity.startActivity(this, exercise.id, exercise.translated_title, mTopTopicSlug);
     }
 
     private void onArticleItemClick(Child article) {
-        ArticleActivity.startActivity(this, article.internal_id);
+        ArticleActivity.startActivity(this, article.internal_id, article.translated_title, mTopTopicSlug);
     }
 
     public static class TopicListAdapter extends BaseAdapter {

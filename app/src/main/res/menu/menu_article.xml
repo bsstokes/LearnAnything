@@ -4,7 +4,7 @@
     tools:context=".ArticleActivity">
     <item
         android:id="@+id/action_open_in_browser"
-        android:icon="@drawable/ic_open_in_browser_black_24dp"
+        android:icon="@drawable/ic_open_in_browser_white_24dp"
         android:orderInCategory="100"
         android:title="Open in Browser"
         app:showAsAction="ifRoom" />
