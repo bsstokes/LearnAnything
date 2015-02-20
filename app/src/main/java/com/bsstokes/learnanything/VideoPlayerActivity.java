@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.TextUtils;
-import android.text.util.Linkify;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -128,6 +127,11 @@ public class VideoPlayerActivity extends ActionBarActivity {
 
         String message = mVideoAdapter.getTitle() + "/" + mVideoAdapter.getImageUrl();
         Toast.makeText(VideoPlayerActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @OnClick(R.id.video_image_view)
+    void onClickVideoImageView() {
+        onOpenVideo();
     }
 
     @OnClick(R.id.watch_video_button)
