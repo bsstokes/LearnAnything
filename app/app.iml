@@ -92,9 +92,9 @@
     <orderEntry type="library" exported="" name="retrofit-1.9.0" level="project" />
     <orderEntry type="library" exported="" name="gson-2.3.1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-21.0.3" level="project" />
-    <orderEntry type="library" exported="" name="realm-android-0.78.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-21.0.3" level="project" />
     <orderEntry type="library" exported="" name="butterknife-6.0.0" level="project" />
+    <orderEntry type="library" exported="" name="realm-android-0.79.1" level="project" />
     <orderEntry type="library" exported="" name="picasso-2.4.0" level="project" />
   </component>
 </module>
