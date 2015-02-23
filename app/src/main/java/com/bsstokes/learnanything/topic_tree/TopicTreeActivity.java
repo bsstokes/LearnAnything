@@ -6,12 +6,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.TopicActivity;
 import com.bsstokes.learnanything.db.RealmUtils;
 import com.bsstokes.learnanything.db.models.Topic;
+import com.bsstokes.learnanything.dev_tools.CopyFile;
 import com.bsstokes.learnanything.sync.SyncService;
+
+import java.io.IOException;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -34,6 +38,7 @@ public class TopicTreeActivity extends ActionBarActivity {
         ButterKnife.inject(this);
 
         realm = Realm.getInstance(this);
+        Log.d("REALM", "Realm path: " + realm.getPath());
 
         RealmResults<Topic> topics = RealmUtils.findAllTopLevelTopics(realm);
         mTopicAdapter = new TopicTreeListAdapter(this, topics);
@@ -69,10 +74,22 @@ public class TopicTreeActivity extends ActionBarActivity {
     @OnItemClick(R.id.topic_list_view)
     void onTopicItemClick(int position) {
         Topic topic = mTopicAdapter.getTopic(position);
-        TopicActivity.startActivity(this, topic.getTitle(), topic.getSlug());
+        TopicActivity.startActivity(this, topic);
     }
 
     private void requestSync() {
         SyncService.startActionSyncTopicTree(this);
+        copyDatabaseToSDCard(realm.getPath());
+
+    }
+
+    private void copyDatabaseToSDCard(String databasePath) {
+        try {
+            CopyFile.backupDatabaseFile(databasePath);
+            Toast.makeText(this, "Copied " + databasePath, Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Toast.makeText(this, "Failed to copy " + databasePath, Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 }

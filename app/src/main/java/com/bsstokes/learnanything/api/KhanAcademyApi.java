@@ -26,6 +26,9 @@ public class KhanAcademyApi {
         @GET("/topic/{topic_slug}")
         void getTopic(@Path("topic_slug") String topicSlug, Callback<Topic> callback);
 
+        @GET("/topic/{topic_slug}")
+        Topic getTopic(@Path("topic_slug") String topicSlug);
+
         @GET("/videos/{video_id}")
         void getVideo(@Path("video_id") String videoId, Callback<Video> callback);
 
@@ -57,6 +60,10 @@ public class KhanAcademyApi {
 
     public void getTopic(String topicSlug, Callback<Topic> callback) {
         mService.getTopic(topicSlug, callback);
+    }
+
+    public Topic getTopic(String topicSlug) throws ApiException {
+        return mService.getTopic(topicSlug);
     }
 
     public void getVideo(String videoId, Callback<Video> callback) {

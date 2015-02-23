@@ -10,4 +10,56 @@ public class Converter {
         dbTopic.setTitle(apiTopic.translated_title);
         dbTopic.setSlug(apiTopic.slug);
     }
+
+    public static void convert(
+            com.bsstokes.learnanything.api.models.Child apiChild,
+            com.bsstokes.learnanything.db.models.Child dbChild) {
+
+        dbChild.setKind(apiChild.kind);
+        dbChild.setHide(apiChild.hide);
+        dbChild.setKey(apiChild.key);
+        dbChild.setInternalId(apiChild.internal_id);
+        dbChild.setTitle(apiChild.title);
+        dbChild.setUrl(apiChild.url);
+        dbChild.setTranslatedTitle(apiChild.translated_title);
+        dbChild.setNodeSlug(apiChild.node_slug);
+        dbChild.setId(apiChild.id);
+        dbChild.setEditSlug(apiChild.edit_slug);
+    }
+
+    public static void convert(
+            com.bsstokes.learnanything.api.models.Child apiChild,
+            com.bsstokes.learnanything.db.models.Video dbVideo) {
+
+        dbVideo.setId(apiChild.internal_id);
+        dbVideo.setSlug(apiChild.id);
+        dbVideo.setTranslatedTitle(apiChild.translated_title);
+    }
+
+    public static void convert(
+            com.bsstokes.learnanything.api.models.Child apiChild,
+            com.bsstokes.learnanything.db.models.Topic dbTopic) {
+
+        dbTopic.setId(apiChild.internal_id);
+        dbTopic.setSlug(apiChild.id);
+        dbTopic.setTitle(apiChild.translated_title);
+    }
+
+    public static void convert(
+            com.bsstokes.learnanything.api.models.Child apiChild,
+            com.bsstokes.learnanything.db.models.Exercise dbExercise) {
+
+        dbExercise.setId(apiChild.internal_id);
+        dbExercise.setName(apiChild.id);
+        dbExercise.setTitle(apiChild.translated_title);
+    }
+
+    public static void convert(
+            com.bsstokes.learnanything.api.models.Child apiChild,
+            com.bsstokes.learnanything.db.models.Article dbArticle) {
+
+        dbArticle.setId(apiChild.internal_id);
+        dbArticle.setName(apiChild.id);
+        dbArticle.setTitle(apiChild.translated_title);
+    }
 }

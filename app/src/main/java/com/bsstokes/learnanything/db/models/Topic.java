@@ -1,15 +1,20 @@
 package com.bsstokes.learnanything.db.models;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Index;
+import io.realm.annotations.PrimaryKey;
 
 public class Topic extends RealmObject {
-    @Index
+    @PrimaryKey
     private String id;
     private String title;
     @Index
     private String slug;
     private boolean topLevel;
+    @Index
+    private String parentId = "";
+    private RealmList<Child> children;
 
     public String getId() {
         return id;
@@ -41,5 +46,21 @@ public class Topic extends RealmObject {
 
     public void setTopLevel(boolean topLevel) {
         this.topLevel = topLevel;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
+
+    public RealmList<Child> getChildren() {
+        return children;
+    }
+
+    public void setChildren(RealmList<Child> children) {
+        this.children = children;
     }
 }

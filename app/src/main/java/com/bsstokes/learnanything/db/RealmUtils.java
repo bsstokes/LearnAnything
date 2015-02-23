@@ -12,10 +12,4 @@ public class RealmUtils {
                 .equalTo("topLevel", true)
                 .findAll();
     }
-
-    public static Topic findTopic(Realm realm, String topicId) {
-        return realm.where(com.bsstokes.learnanything.db.models.Topic.class)
-                .equalTo("id", topicId)
-                .findFirst();
-    }
 }

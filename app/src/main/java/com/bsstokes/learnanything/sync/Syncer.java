@@ -5,7 +5,6 @@ import android.content.Context;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
-import com.bsstokes.learnanything.db.RealmUtils;
 import com.crashlytics.android.Crashlytics;
 
 import io.realm.Realm;
@@ -34,17 +33,15 @@ public class Syncer {
         final Realm realm = Realm.getInstance(context);
 
         for (Topic apiTopic : topicTree.children) {
-            com.bsstokes.learnanything.db.models.Topic dbTopic = RealmUtils.findTopic(realm, apiTopic.id);
-            if (null == dbTopic) {
-                dbTopic = new com.bsstokes.learnanything.db.models.Topic();
-                dbTopic.setId(apiTopic.id);
-                dbTopic.setTopLevel(true);
-            }
 
             realm.beginTransaction();
+
+            com.bsstokes.learnanything.db.models.Topic dbTopic = new com.bsstokes.learnanything.db.models.Topic();
             Converter.convert(apiTopic, dbTopic);
             dbTopic.setTopLevel(true);
-            realm.copyToRealm(dbTopic);
+
+
+            realm.copyToRealmOrUpdate(dbTopic);
             realm.commitTransaction();
         }
 

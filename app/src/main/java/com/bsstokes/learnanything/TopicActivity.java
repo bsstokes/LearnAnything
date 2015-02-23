@@ -11,34 +11,51 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsstokes.learnanything.api.Categories;
-import com.bsstokes.learnanything.api.KhanAcademyApi;
-import com.bsstokes.learnanything.api.models.Child;
-import com.bsstokes.learnanything.api.models.Topic;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import com.bsstokes.learnanything.db.models.Topic;
+import com.bsstokes.learnanything.sync.SyncService;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmList;
 
 public class TopicActivity extends ActionBarActivity {
 
-    public static void startActivity(Context context, String title, String topicSlug) {
-        startActivity(context, title, topicSlug, topicSlug);
+    public static void startActivity(Context context, Topic topic) {
+        startActivity(context, topic, topic.getSlug());
     }
 
-    public static void startActivity(Context context, String title, String topTopicSlug, String topicSlug) {
+    public static void startActivity(Context context, com.bsstokes.learnanything.db.models.Child topic, String topTopicSlug) {
+
+        String title = topic.getTitle();
+        String topicSlug = topic.getId();
+
+        if (TextUtils.isEmpty(topTopicSlug)) {
+            throw new RuntimeException("Top topic slug (" + EXTRA_TOP_TOPIC_SLUG + ") can't be empty");
+        }
+
+        if (TextUtils.isEmpty(topicSlug)) {
+            throw new RuntimeException("Topic slug (" + EXTRA_TOPIC_SLUG + ") can't be empty");
+        }
+
+        Intent intent = new Intent(context, TopicActivity.class);
+        intent.putExtra(EXTRA_TITLE, title);
+        intent.putExtra(EXTRA_TOP_TOPIC_SLUG, topTopicSlug);
+        intent.putExtra(EXTRA_TOPIC_SLUG, topicSlug);
+        context.startActivity(intent);
+    }
+
+    public static void startActivity(Context context, Topic topic, String topTopicSlug) {
+
+        String title = topic.getTitle();
+        String topicSlug = topic.getSlug();
 
         if (TextUtils.isEmpty(topTopicSlug)) {
             throw new RuntimeException("Top topic slug (" + EXTRA_TOP_TOPIC_SLUG + ") can't be empty");
@@ -65,7 +82,9 @@ public class TopicActivity extends ActionBarActivity {
     private String mTitle;
     private String mTopTopicSlug;
     private String mTopicSlug;
-    private TopicListAdapter mChildAdapter;
+    private TopicListRealmAdapter mChildAdapter;
+
+    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +93,13 @@ public class TopicActivity extends ActionBarActivity {
         ButterKnife.inject(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mChildAdapter = new TopicListAdapter(this);
-        mTopicListView.setAdapter(mChildAdapter);
+        realm = Realm.getInstance(this);
+        realm.addChangeListener(new RealmChangeListener() {
+            @Override
+            public void onChange() {
+                update();
+            }
+        });
 
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
@@ -86,30 +110,24 @@ public class TopicActivity extends ActionBarActivity {
 
         setTitle(mTitle);
 
-        KhanAcademyApi api = new KhanAcademyApi();
-        api.getTopic(mTopicSlug, new Callback<Topic>() {
-            @Override
-            public void success(Topic topic, Response response) {
-                String message = String.format(Locale.getDefault(), "%s, %s, %s",
-                        topic.translated_title,
-                        topic.slug,
-                        topic.kind);
-                Toast.makeText(TopicActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                mTitle = topic.translated_title;
-                setTitle(mTitle);
-                mChildAdapter.setChildren(topic.children);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Toast.makeText(TopicActivity.this, "Oops. Topic list failed to download.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        update();
+        requestSync();
 
         int colorResId = Categories.getColorForCategory(mTopTopicSlug);
         int color = getResources().getColor(colorResId);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
+    }
+
+    private void update() {
+        Topic topic = realm.where(Topic.class).equalTo("slug", mTopicSlug).findFirst();
+
+        if (null == topic) {
+            return;
+        }
+
+//        mChildAdapter = new TopicListAdapter(this);
+        mChildAdapter = new TopicListRealmAdapter(this, realm, topic.getChildren());
+        mTopicListView.setAdapter(mChildAdapter);
     }
 
     @Override
@@ -124,8 +142,8 @@ public class TopicActivity extends ActionBarActivity {
 
     @OnItemClick(R.id.topic_list_view)
     void onItemClick(int position) {
-        Child child = mChildAdapter.getChild(position);
-        String kind = child.kind;
+        com.bsstokes.learnanything.db.models.Child child = mChildAdapter.getItem(position);
+        String kind = child.getKind();
         // TODO: This is lame type checking
         if ("Topic".equalsIgnoreCase(kind)) {
             onTopicItemClick(child);
@@ -140,27 +158,27 @@ public class TopicActivity extends ActionBarActivity {
         }
     }
 
-    private void onContentItemClick(Child child) {
+    private void onContentItemClick(com.bsstokes.learnanything.db.models.Child child) {
         Toast.makeText(this, "Oops (Child/" + child.getClass().getSimpleName() + ")", Toast.LENGTH_SHORT).show();
     }
 
-    private void onTopicItemClick(Child topic) {
-        startActivity(this, topic.translated_title, mTopTopicSlug, topic.id);
+    private void onTopicItemClick(com.bsstokes.learnanything.db.models.Child topic) {
+        TopicActivity.startActivity(this, topic, mTopTopicSlug);
     }
 
-    private void onVideoItemClick(Child video) {
-        VideoPlayerActivity.startActivity(this, video.id, video.translated_title, mTopTopicSlug);
+    private void onVideoItemClick(com.bsstokes.learnanything.db.models.Child video) {
+        VideoPlayerActivity.startActivity(this, video.getId(), video.getTranslatedTitle(), mTopTopicSlug);
     }
 
-    private void onExerciseItemClick(Child exercise) {
-        ExerciseActivity.startActivity(this, exercise.id, exercise.translated_title, mTopTopicSlug);
+    private void onExerciseItemClick(com.bsstokes.learnanything.db.models.Child exercise) {
+        ExerciseActivity.startActivity(this, exercise.getId(), exercise.getTranslatedTitle(), mTopTopicSlug);
     }
 
-    private void onArticleItemClick(Child article) {
-        ArticleActivity.startActivity(this, article.internal_id, article.translated_title, mTopTopicSlug);
+    private void onArticleItemClick(com.bsstokes.learnanything.db.models.Child article) {
+        ArticleActivity.startActivity(this, article.getInternalId(), article.getTranslatedTitle(), mTopTopicSlug);
     }
 
-    public static class TopicListAdapter extends BaseAdapter {
+    public static class TopicListRealmAdapter extends RealmListBaseAdapter<com.bsstokes.learnanything.db.models.Child> {
 
         private static final int VIEW_TYPE_OTHER = 0;
         private static final int VIEW_TYPE_TOPIC = VIEW_TYPE_OTHER + 1;
@@ -169,30 +187,8 @@ public class TopicActivity extends ActionBarActivity {
         private static final int VIEW_TYPE_ARTICLE = VIEW_TYPE_OTHER + 4;
         private static final int VIEW_TYPE_COUNT = VIEW_TYPE_OTHER + 5;
 
-        private Context context;
-        private List<Child> children = new ArrayList<>();
-
-        public TopicListAdapter(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        public int getCount() {
-            return children.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return getChild(position);
-        }
-
-        public Child getChild(int position) {
-            return children.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
+        public TopicListRealmAdapter(Context context, Realm realm, RealmList<com.bsstokes.learnanything.db.models.Child> realmList) {
+            super(context, realm, realmList, true);
         }
 
         @Override
@@ -230,14 +226,19 @@ public class TopicActivity extends ActionBarActivity {
         }
 
         private void bind(ViewHolder viewHolder, int position) {
-            Child child = getChild(position);
-            viewHolder.titleTextView.setText(child.translated_title);
+            com.bsstokes.learnanything.db.models.Child child = getItem(position);
+            viewHolder.titleTextView.setText(child.getTranslatedTitle());
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return VIEW_TYPE_COUNT;
         }
 
         @Override
         public int getItemViewType(int position) {
-            Child child = getChild(position);
-            String kind = child.kind;
+            com.bsstokes.learnanything.db.models.Child child = getItem(position);
+            String kind = child.getKind();
             if ("Topic".equalsIgnoreCase(kind)) {
                 return VIEW_TYPE_TOPIC;
             } else if ("Video".equalsIgnoreCase(kind)) {
@@ -251,17 +252,6 @@ public class TopicActivity extends ActionBarActivity {
             }
         }
 
-        @Override
-        public int getViewTypeCount() {
-            return VIEW_TYPE_COUNT;
-        }
-
-        public void setChildren(List<Child> children) {
-            this.children.clear();
-            this.children.addAll(children);
-            notifyDataSetChanged();
-        }
-
         public static class ViewHolder {
 
             @InjectView(R.id.title_text_view)
@@ -271,5 +261,126 @@ public class TopicActivity extends ActionBarActivity {
                 ButterKnife.inject(this, view);
             }
         }
+    }
+
+//    public static class TopicListAdapter extends BaseAdapter {
+//
+//        private static final int VIEW_TYPE_OTHER = 0;
+//        private static final int VIEW_TYPE_TOPIC = VIEW_TYPE_OTHER + 1;
+//        private static final int VIEW_TYPE_VIDEO = VIEW_TYPE_OTHER + 2;
+//        private static final int VIEW_TYPE_EXERCISE = VIEW_TYPE_OTHER + 3;
+//        private static final int VIEW_TYPE_ARTICLE = VIEW_TYPE_OTHER + 4;
+//        private static final int VIEW_TYPE_COUNT = VIEW_TYPE_OTHER + 5;
+//
+//        private Context context;
+//        private List<Child> children = new ArrayList<>();
+//
+//        public TopicListAdapter(Context context) {
+//            this.context = context;
+//        }
+//
+//        @Override
+//        public int getCount() {
+//            return children.size();
+//        }
+//
+//        @Override
+//        public Object getItem(int position) {
+//            return getChild(position);
+//        }
+//
+//        public Child getChild(int position) {
+//            return children.get(position);
+//        }
+//
+//        @Override
+//        public long getItemId(int position) {
+//            return 0;
+//        }
+//
+//        @Override
+//        public View getView(int position, View convertView, ViewGroup parent) {
+//            if (null == convertView) {
+//                convertView = inflate(position, parent);
+//                convertView.setTag(new ViewHolder(convertView));
+//            }
+//
+//            ViewHolder viewHolder = (ViewHolder) convertView.getTag();
+//            bind(viewHolder, position);
+//
+//            return convertView;
+//        }
+//
+//        private View inflate(int position, ViewGroup parent) {
+//            int viewType = getItemViewType(position);
+//            return LayoutInflater.from(context).inflate(getLayoutRes(viewType), parent, false);
+//        }
+//
+//        @LayoutRes
+//        private int getLayoutRes(int viewType) {
+//            switch (viewType) {
+//                case (VIEW_TYPE_VIDEO):
+//                    return R.layout.row_video;
+//                case (VIEW_TYPE_EXERCISE):
+//                    return R.layout.row_exercise;
+//                case (VIEW_TYPE_ARTICLE):
+//                    return R.layout.row_article;
+//                case (VIEW_TYPE_TOPIC):
+//                    return R.layout.row_topic;
+//                default:
+//                    return R.layout.row_other;
+//            }
+//        }
+//
+//        private void bind(ViewHolder viewHolder, int position) {
+//            Child child = getChild(position);
+//            viewHolder.titleTextView.setText(child.translated_title);
+//        }
+//
+//        @Override
+//        public int getItemViewType(int position) {
+//            Child child = getChild(position);
+//            String kind = child.kind;
+//            if ("Topic".equalsIgnoreCase(kind)) {
+//                return VIEW_TYPE_TOPIC;
+//            } else if ("Video".equalsIgnoreCase(kind)) {
+//                return VIEW_TYPE_VIDEO;
+//            } else if ("Exercise".equalsIgnoreCase(kind)) {
+//                return VIEW_TYPE_EXERCISE;
+//            } else if ("Article".equalsIgnoreCase(kind)) {
+//                return VIEW_TYPE_ARTICLE;
+//            } else {
+//                return VIEW_TYPE_OTHER;
+//            }
+//        }
+//
+//        @Override
+//        public int getViewTypeCount() {
+//            return VIEW_TYPE_COUNT;
+//        }
+//
+//        public void setChildren(List<Child> children) {
+//            this.children.clear();
+//            this.children.addAll(children);
+//            notifyDataSetChanged();
+//        }
+//
+//        public static class ViewHolder {
+//
+//            @InjectView(R.id.title_text_view)
+//            TextView titleTextView;
+//
+//            public ViewHolder(View view) {
+//                ButterKnife.inject(this, view);
+//            }
+//        }
+//    }
+
+    private void requestSync() {
+        SyncService.startActionSyncTopic(this, mTopicSlug, isTopLevel());
+    }
+
+    private boolean isTopLevel() {
+        return !TextUtils.isEmpty(mTopicSlug) && mTopicSlug.equals(mTopTopicSlug);
     }
 }

@@ -13,7 +13,7 @@ public class Video {
 //    duration: 248,
     public String translated_title;
     public String translated_description_html;
-    //    id: "871510490",
+    public String id;
 //    description_html: "Thinking about why dividing by zero is left undefined",
 //    title: "Why dividing by zero is undefined",
 //    progress_key: "v871510490",
