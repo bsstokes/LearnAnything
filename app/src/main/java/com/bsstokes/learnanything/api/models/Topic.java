@@ -1,5 +1,6 @@
 package com.bsstokes.learnanything.api.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Topic {

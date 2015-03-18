@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,8 +17,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsstokes.learnanything.api.Categories;
+import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.db.models.Topic;
 import com.bsstokes.learnanything.sync.SyncService;
+import com.bsstokes.learnanything.sync.rx.EndlessObserver;
+import com.bsstokes.learnanything.sync.rx.TopicDataSource;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -25,6 +29,11 @@ import butterknife.OnItemClick;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmList;
+import rx.Observable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 public class TopicActivity extends ActionBarActivity {
 
@@ -86,6 +95,9 @@ public class TopicActivity extends ActionBarActivity {
 
     private Realm realm;
 
+    private KhanAcademyApi khanAcademyApi = new KhanAcademyApi();
+    private Subscription topicRequest;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,6 +128,40 @@ public class TopicActivity extends ActionBarActivity {
         int colorResId = Categories.getColorForCategory(mTopTopicSlug);
         int color = getResources().getColor(colorResId);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
+
+        TopicDataSource topicDataSource = new TopicDataSource(khanAcademyApi, realm);
+        topicRequest = topicDataSource.loadTopic(mTopicSlug, isTopLevel(), new EndlessObserver<com.bsstokes.learnanything.api.models.Topic>() {
+            @Override
+            public void onNext(com.bsstokes.learnanything.api.models.Topic topic) {
+                Log.d("RX", "Got topic: " + topic.id);
+            }
+        });
+
+
+        Observable<com.bsstokes.learnanything.api.models.Topic> observable = khanAcademyApi.getTopicObservable(mTopicSlug)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
+        observable.subscribe(new Action1<com.bsstokes.learnanything.api.models.Topic>() {
+            @Override
+            public void call(com.bsstokes.learnanything.api.models.Topic topic) {
+                Log.d("RX", "1 Action1");
+            }
+        });
+
+        observable.subscribe(new Action1<com.bsstokes.learnanything.api.models.Topic>() {
+            @Override
+            public void call(com.bsstokes.learnanything.api.models.Topic topic) {
+                Log.d("RX", "2 Action1");
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close();
+        topicRequest.unsubscribe();
     }
 
     private void update() {

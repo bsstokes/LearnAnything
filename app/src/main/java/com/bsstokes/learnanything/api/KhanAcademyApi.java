@@ -13,6 +13,7 @@ import retrofit.RetrofitError;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
+import rx.Observable;
 
 public class KhanAcademyApi {
 
@@ -23,11 +24,17 @@ public class KhanAcademyApi {
         @GET("/topictree")
         TopicTree getTopicTree(@Query("kind") String kind);
 
+        @GET("/topictree")
+        Observable<TopicTree> getTopicTreeObservable(@Query("kind") String kind);
+
         @GET("/topic/{topic_slug}")
         void getTopic(@Path("topic_slug") String topicSlug, Callback<Topic> callback);
 
         @GET("/topic/{topic_slug}")
         Topic getTopic(@Path("topic_slug") String topicSlug);
+
+        @GET("/topic/{topic_slug}")
+        Observable<Topic> getTopicObservable(@Path("topic_slug") String topicSlug);
 
         @GET("/videos/{video_id}")
         void getVideo(@Path("video_id") String videoId, Callback<Video> callback);
@@ -58,12 +65,20 @@ public class KhanAcademyApi {
         return mService.getTopicTree("Topic");
     }
 
+    public Observable<TopicTree> getTopicTreeOfKindTopicObservable() {
+        return mService.getTopicTreeObservable("Topic");
+    }
+
     public void getTopic(String topicSlug, Callback<Topic> callback) {
         mService.getTopic(topicSlug, callback);
     }
 
     public Topic getTopic(String topicSlug) throws ApiException {
         return mService.getTopic(topicSlug);
+    }
+
+    public Observable<Topic> getTopicObservable(String topicSlug) {
+        return mService.getTopicObservable(topicSlug);
     }
 
     public void getVideo(String videoId, Callback<Video> callback) {
