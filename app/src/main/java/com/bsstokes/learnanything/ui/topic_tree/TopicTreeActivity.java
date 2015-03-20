@@ -8,20 +8,23 @@ import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.bsstokes.learnanything.BuildConfig;
 import com.bsstokes.learnanything.R;
-import com.bsstokes.learnanything.ui.TopicActivity;
 import com.bsstokes.learnanything.db.RealmUtils;
 import com.bsstokes.learnanything.db.models.Topic;
 import com.bsstokes.learnanything.dev_tools.CopyFile;
 import com.bsstokes.learnanything.sync.SyncService;
-
-import java.io.IOException;
+import com.bsstokes.learnanything.sync.rx.EndlessObserver;
+import com.bsstokes.learnanything.ui.TopicActivity;
+import com.crashlytics.android.Crashlytics;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class TopicTreeActivity extends ActionBarActivity {
 
@@ -60,10 +63,25 @@ public class TopicTreeActivity extends ActionBarActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        if (BuildConfig.DEBUG) {
+            MenuItem backupDatabaseItem = menu.findItem(R.id.action_backup_database);
+            backupDatabaseItem.setVisible(true);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case (R.id.action_refresh):
                 requestSync();
+                return true;
+
+            case (R.id.action_backup_database):
+                copyDatabaseToSDCard();
                 return true;
         }
 
@@ -78,16 +96,28 @@ public class TopicTreeActivity extends ActionBarActivity {
 
     private void requestSync() {
         SyncService.startActionSyncTopicTree(this);
-        copyDatabaseToSDCard(realm.getPath());
     }
 
-    private void copyDatabaseToSDCard(String databasePath) {
-        try {
-            CopyFile.backupDatabaseFile(databasePath);
-            Toast.makeText(this, "Copied " + databasePath, Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            Toast.makeText(this, "Failed to copy " + databasePath, Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
+    private void copyDatabaseToSDCard() {
+        String databasePath = realm.getPath();
+        CopyFile.copyDatabaseToSDCard(databasePath)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new EndlessObserver<String>() {
+                    @Override
+                    public void onNext(String backedUpPath) {
+                        toast("Copied database to " + backedUpPath);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                        Crashlytics.logException(throwable);
+                    }
+                });
+    }
+
+    private void toast(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 }
