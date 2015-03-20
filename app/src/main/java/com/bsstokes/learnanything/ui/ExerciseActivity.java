@@ -1,4 +1,4 @@
-package com.bsstokes.learnanything;
+package com.bsstokes.learnanything.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Exercise;

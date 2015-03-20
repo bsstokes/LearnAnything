@@ -1,4 +1,4 @@
-package com.bsstokes.learnanything.topic_tree;
+package com.bsstokes.learnanything.ui.topic_tree;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -9,7 +9,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bsstokes.learnanything.R;
-import com.bsstokes.learnanything.TopicActivity;
+import com.bsstokes.learnanything.ui.TopicActivity;
 import com.bsstokes.learnanything.db.RealmUtils;
 import com.bsstokes.learnanything.db.models.Topic;
 import com.bsstokes.learnanything.dev_tools.CopyFile;

@@ -1,4 +1,4 @@
-package com.bsstokes.learnanything.topic_tree;
+package com.bsstokes.learnanything.ui.topic_tree;
 
 import android.content.Context;
 import android.view.LayoutInflater;

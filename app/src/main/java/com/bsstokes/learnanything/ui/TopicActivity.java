@@ -1,4 +1,4 @@
-package com.bsstokes.learnanything;
+package com.bsstokes.learnanything.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.db.models.Topic;
 import com.bsstokes.learnanything.sync.SyncService;
