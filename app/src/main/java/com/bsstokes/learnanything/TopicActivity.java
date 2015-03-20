@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,11 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsstokes.learnanything.api.Categories;
-import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.db.models.Topic;
 import com.bsstokes.learnanything.sync.SyncService;
-import com.bsstokes.learnanything.sync.rx.EndlessObserver;
-import com.bsstokes.learnanything.sync.rx.TopicDataSource;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -29,11 +25,6 @@ import butterknife.OnItemClick;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmList;
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 public class TopicActivity extends ActionBarActivity {
 
@@ -95,9 +86,6 @@ public class TopicActivity extends ActionBarActivity {
 
     private Realm realm;
 
-    private KhanAcademyApi khanAcademyApi = new KhanAcademyApi();
-    private Subscription topicRequest;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,40 +116,12 @@ public class TopicActivity extends ActionBarActivity {
         int colorResId = Categories.getColorForCategory(mTopTopicSlug);
         int color = getResources().getColor(colorResId);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
-
-        TopicDataSource topicDataSource = new TopicDataSource(khanAcademyApi, realm);
-        topicRequest = topicDataSource.loadTopic(mTopicSlug, isTopLevel(), new EndlessObserver<com.bsstokes.learnanything.api.models.Topic>() {
-            @Override
-            public void onNext(com.bsstokes.learnanything.api.models.Topic topic) {
-                Log.d("RX", "Got topic: " + topic.id);
-            }
-        });
-
-
-        Observable<com.bsstokes.learnanything.api.models.Topic> observable = khanAcademyApi.getTopicObservable(mTopicSlug)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-
-        observable.subscribe(new Action1<com.bsstokes.learnanything.api.models.Topic>() {
-            @Override
-            public void call(com.bsstokes.learnanything.api.models.Topic topic) {
-                Log.d("RX", "1 Action1");
-            }
-        });
-
-        observable.subscribe(new Action1<com.bsstokes.learnanything.api.models.Topic>() {
-            @Override
-            public void call(com.bsstokes.learnanything.api.models.Topic topic) {
-                Log.d("RX", "2 Action1");
-            }
-        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         realm.close();
-        topicRequest.unsubscribe();
     }
 
     private void update() {
@@ -308,119 +268,6 @@ public class TopicActivity extends ActionBarActivity {
             }
         }
     }
-
-//    public static class TopicListAdapter extends BaseAdapter {
-//
-//        private static final int VIEW_TYPE_OTHER = 0;
-//        private static final int VIEW_TYPE_TOPIC = VIEW_TYPE_OTHER + 1;
-//        private static final int VIEW_TYPE_VIDEO = VIEW_TYPE_OTHER + 2;
-//        private static final int VIEW_TYPE_EXERCISE = VIEW_TYPE_OTHER + 3;
-//        private static final int VIEW_TYPE_ARTICLE = VIEW_TYPE_OTHER + 4;
-//        private static final int VIEW_TYPE_COUNT = VIEW_TYPE_OTHER + 5;
-//
-//        private Context context;
-//        private List<Child> children = new ArrayList<>();
-//
-//        public TopicListAdapter(Context context) {
-//            this.context = context;
-//        }
-//
-//        @Override
-//        public int getCount() {
-//            return children.size();
-//        }
-//
-//        @Override
-//        public Object getItem(int position) {
-//            return getChild(position);
-//        }
-//
-//        public Child getChild(int position) {
-//            return children.get(position);
-//        }
-//
-//        @Override
-//        public long getItemId(int position) {
-//            return 0;
-//        }
-//
-//        @Override
-//        public View getView(int position, View convertView, ViewGroup parent) {
-//            if (null == convertView) {
-//                convertView = inflate(position, parent);
-//                convertView.setTag(new ViewHolder(convertView));
-//            }
-//
-//            ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-//            bind(viewHolder, position);
-//
-//            return convertView;
-//        }
-//
-//        private View inflate(int position, ViewGroup parent) {
-//            int viewType = getItemViewType(position);
-//            return LayoutInflater.from(context).inflate(getLayoutRes(viewType), parent, false);
-//        }
-//
-//        @LayoutRes
-//        private int getLayoutRes(int viewType) {
-//            switch (viewType) {
-//                case (VIEW_TYPE_VIDEO):
-//                    return R.layout.row_video;
-//                case (VIEW_TYPE_EXERCISE):
-//                    return R.layout.row_exercise;
-//                case (VIEW_TYPE_ARTICLE):
-//                    return R.layout.row_article;
-//                case (VIEW_TYPE_TOPIC):
-//                    return R.layout.row_topic;
-//                default:
-//                    return R.layout.row_other;
-//            }
-//        }
-//
-//        private void bind(ViewHolder viewHolder, int position) {
-//            Child child = getChild(position);
-//            viewHolder.titleTextView.setText(child.translated_title);
-//        }
-//
-//        @Override
-//        public int getItemViewType(int position) {
-//            Child child = getChild(position);
-//            String kind = child.kind;
-//            if ("Topic".equalsIgnoreCase(kind)) {
-//                return VIEW_TYPE_TOPIC;
-//            } else if ("Video".equalsIgnoreCase(kind)) {
-//                return VIEW_TYPE_VIDEO;
-//            } else if ("Exercise".equalsIgnoreCase(kind)) {
-//                return VIEW_TYPE_EXERCISE;
-//            } else if ("Article".equalsIgnoreCase(kind)) {
-//                return VIEW_TYPE_ARTICLE;
-//            } else {
-//                return VIEW_TYPE_OTHER;
-//            }
-//        }
-//
-//        @Override
-//        public int getViewTypeCount() {
-//            return VIEW_TYPE_COUNT;
-//        }
-//
-//        public void setChildren(List<Child> children) {
-//            this.children.clear();
-//            this.children.addAll(children);
-//            notifyDataSetChanged();
-//        }
-//
-//        public static class ViewHolder {
-//
-//            @InjectView(R.id.title_text_view)
-//            TextView titleTextView;
-//
-//            public ViewHolder(View view) {
-//                ButterKnife.inject(this, view);
-//            }
-//        }
-//    }
 
     private void requestSync() {
         SyncService.startActionSyncTopic(this, mTopicSlug, isTopLevel());

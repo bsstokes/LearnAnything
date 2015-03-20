@@ -9,7 +9,6 @@ import com.bsstokes.learnanything.api.models.Video;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
-import retrofit.RetrofitError;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
@@ -19,22 +18,10 @@ public class KhanAcademyApi {
 
     protected interface KhanAcademyService {
         @GET("/topictree")
-        void getTopicTree(@Query("kind") String kind, Callback<TopicTree> callback);
-
-        @GET("/topictree")
-        TopicTree getTopicTree(@Query("kind") String kind);
-
-        @GET("/topictree")
-        Observable<TopicTree> getTopicTreeObservable(@Query("kind") String kind);
+        Observable<TopicTree> getTopicTree(@Query("kind") String kind);
 
         @GET("/topic/{topic_slug}")
-        void getTopic(@Path("topic_slug") String topicSlug, Callback<Topic> callback);
-
-        @GET("/topic/{topic_slug}")
-        Topic getTopic(@Path("topic_slug") String topicSlug);
-
-        @GET("/topic/{topic_slug}")
-        Observable<Topic> getTopicObservable(@Path("topic_slug") String topicSlug);
+        Observable<Topic> getTopic(@Path("topic_slug") String topicSlug);
 
         @GET("/videos/{video_id}")
         void getVideo(@Path("video_id") String videoId, Callback<Video> callback);
@@ -57,28 +44,12 @@ public class KhanAcademyApi {
         mService = restAdapter.create(KhanAcademyService.class);
     }
 
-    public void getTopicTreeOfKindTopic(Callback<TopicTree> callback) {
-        mService.getTopicTree("Topic", callback);
-    }
-
-    public TopicTree getTopicTreeOfKindTopic() throws ApiException {
+    public Observable<TopicTree> getTopicTreeOfKindTopic() {
         return mService.getTopicTree("Topic");
     }
 
-    public Observable<TopicTree> getTopicTreeOfKindTopicObservable() {
-        return mService.getTopicTreeObservable("Topic");
-    }
-
-    public void getTopic(String topicSlug, Callback<Topic> callback) {
-        mService.getTopic(topicSlug, callback);
-    }
-
-    public Topic getTopic(String topicSlug) throws ApiException {
+    public Observable<Topic> getTopic(String topicSlug) {
         return mService.getTopic(topicSlug);
-    }
-
-    public Observable<Topic> getTopicObservable(String topicSlug) {
-        return mService.getTopicObservable(topicSlug);
     }
 
     public void getVideo(String videoId, Callback<Video> callback) {
@@ -91,17 +62,5 @@ public class KhanAcademyApi {
 
     public void getArticle(String articleInternalId, Callback<Article> callback) {
         mService.getArticle(articleInternalId, callback);
-    }
-
-    public class ApiException extends Exception {
-        private RetrofitError retrofitError;
-
-        public ApiException(RetrofitError retrofitError) {
-            this.retrofitError = retrofitError;
-        }
-
-        public RetrofitError getRetrofitError() {
-            return retrofitError;
-        }
     }
 }
