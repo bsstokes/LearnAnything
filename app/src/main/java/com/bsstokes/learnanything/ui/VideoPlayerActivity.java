@@ -125,9 +125,6 @@ public class VideoPlayerActivity extends ActionBarActivity {
 
         String imageUrl = mVideoAdapter.getImageUrl();
         Picasso.with(this).load(imageUrl).into(mVideoImageView);
-
-        String message = mVideoAdapter.getTitle() + "/" + mVideoAdapter.getImageUrl();
-        Toast.makeText(VideoPlayerActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 
     @OnClick(R.id.video_image_view)
