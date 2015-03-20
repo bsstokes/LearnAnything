@@ -37,7 +37,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Light.DarkActionBar" />
         <activity
-            android:name=".ArticleActivity"
+            android:name=".ui.ArticleActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Light.DarkActionBar" />
@@ -45,6 +45,7 @@
         <service
             android:name=".sync.SyncService"
             android:exported="false" />
+
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="c53b7143afb848fea60149d3edc66591dda0d90e" />
