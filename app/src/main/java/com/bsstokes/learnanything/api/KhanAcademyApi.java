@@ -24,7 +24,7 @@ public class KhanAcademyApi {
         Observable<Topic> getTopic(@Path("topic_slug") String topicSlug);
 
         @GET("/videos/{video_id}")
-        void getVideo(@Path("video_id") String videoId, Callback<Video> callback);
+        Observable<Video> getVideo(@Path("video_id") String videoId);
 
         @GET("/exercises/{exercise_name}")
         void getExercise(@Path("exercise_name") String exerciseName, Callback<Exercise> callback);
@@ -52,8 +52,8 @@ public class KhanAcademyApi {
         return mService.getTopic(topicSlug);
     }
 
-    public void getVideo(String videoId, Callback<Video> callback) {
-        mService.getVideo(videoId, callback);
+    public Observable<Video> getVideo(String videoId) {
+        return mService.getVideo(videoId);
     }
 
     public void getExercise(String exerciseName, Callback<Exercise> callback) {

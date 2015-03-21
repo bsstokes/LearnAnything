@@ -19,14 +19,14 @@ import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Video;
+import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.squareup.picasso.Picasso;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class VideoPlayerActivity extends ActionBarActivity {
 
@@ -79,18 +79,21 @@ public class VideoPlayerActivity extends ActionBarActivity {
         configureColors();
 
         KhanAcademyApi api = new KhanAcademyApi();
-        api.getVideo(mVideoId, new Callback<Video>() {
-            @Override
-            public void success(Video video, Response response) {
-                mVideoAdapter.setVideo(video);
-                updateUI();
-            }
+        api.getVideo(mVideoId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new EndlessObserver<Video>() {
+                    @Override
+                    public void onNext(Video video) {
+                        mVideoAdapter.setVideo(video);
+                        updateUI();
+                    }
 
-            @Override
-            public void failure(RetrofitError error) {
-                Toast.makeText(VideoPlayerActivity.this, "Oops. Download failed!", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onError(Throwable throwable) {
+                        Toast.makeText(VideoPlayerActivity.this, "Oops. Download failed!", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         updateUI();
     }
