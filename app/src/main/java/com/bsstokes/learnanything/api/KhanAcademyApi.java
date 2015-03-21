@@ -7,7 +7,6 @@ import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.api.models.TopicTree;
 import com.bsstokes.learnanything.api.models.Video;
 
-import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.http.GET;
 import retrofit.http.Path;
@@ -30,7 +29,7 @@ public class KhanAcademyApi {
         Observable<Exercise> getExercise(@Path("exercise_name") String exerciseName);
 
         @GET("/articles/{article_internal_id}")
-        void getArticle(@Path("article_internal_id") String articleInternalId, Callback<Article> callback);
+        Observable<Article> getArticle(@Path("article_internal_id") String articleInternalId);
     }
 
     private KhanAcademyService mService;
@@ -60,7 +59,7 @@ public class KhanAcademyApi {
         return mService.getExercise(exerciseName);
     }
 
-    public void getArticle(String articleInternalId, Callback<Article> callback) {
-        mService.getArticle(articleInternalId, callback);
+    public Observable<Article> getArticle(String articleInternalId) {
+        return mService.getArticle(articleInternalId);
     }
 }

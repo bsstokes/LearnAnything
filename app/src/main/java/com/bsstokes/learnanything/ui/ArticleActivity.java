@@ -16,13 +16,13 @@ import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Article;
+import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.squareup.phrase.Phrase;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class ArticleActivity extends ActionBarActivity {
 
@@ -68,18 +68,16 @@ public class ArticleActivity extends ActionBarActivity {
         }
 
         KhanAcademyApi api = new KhanAcademyApi();
-        api.getArticle(mArticleInternalId, new Callback<Article>() {
-            @Override
-            public void success(Article article, Response response) {
-                mArticle = article;
-                updateUI();
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
+        api.getArticle(mArticleInternalId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new EndlessObserver<Article>() {
+                    @Override
+                    public void onNext(Article article) {
+                        mArticle = article;
+                        updateUI();
+                    }
+                });
 
         configureColors();
         updateUI();
