@@ -22,7 +22,9 @@ import com.squareup.picasso.Picasso;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 
 public class ExerciseActivity extends ActionBarActivity {
@@ -71,8 +73,15 @@ public class ExerciseActivity extends ActionBarActivity {
             mTopTopicSlug = extras.getString(EXTRA_TOP_TOPIC_SLUG, mTopTopicSlug);
         }
 
-        KhanAcademyApi api = new KhanAcademyApi();
-        api.getExercise(mExerciseId)
+        final KhanAcademyApi api = new KhanAcademyApi();
+        Observable<Exercise> deferredObservable = Observable.defer(new Func0<Observable<Exercise>>() {
+            @Override
+            public Observable<Exercise> call() {
+                return Observable.just(api.getExercise(mExerciseId));
+            }
+        });
+
+        deferredObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new EndlessObserver<Exercise>() {
