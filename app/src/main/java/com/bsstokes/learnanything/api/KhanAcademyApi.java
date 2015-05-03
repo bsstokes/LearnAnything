@@ -11,7 +11,6 @@ import retrofit.RestAdapter;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
-import rx.Observable;
 
 public class KhanAcademyApi {
 
@@ -29,7 +28,7 @@ public class KhanAcademyApi {
         Exercise getExercise(@Path("exercise_name") String exerciseName);
 
         @GET("/articles/{article_internal_id}")
-        Observable<Article> getArticle(@Path("article_internal_id") String articleInternalId);
+        Article getArticle(@Path("article_internal_id") String articleInternalId);
     }
 
     private KhanAcademyService mService;
@@ -59,7 +58,7 @@ public class KhanAcademyApi {
         return mService.getExercise(exerciseName);
     }
 
-    public Observable<Article> getArticle(String articleInternalId) {
+    public Article getArticle(String articleInternalId) {
         return mService.getArticle(articleInternalId);
     }
 }
