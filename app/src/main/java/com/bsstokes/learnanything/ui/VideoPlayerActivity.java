@@ -25,7 +25,9 @@ import com.squareup.picasso.Picasso;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 
 public class VideoPlayerActivity extends ActionBarActivity {
@@ -78,8 +80,15 @@ public class VideoPlayerActivity extends ActionBarActivity {
 
         configureColors();
 
-        KhanAcademyApi api = new KhanAcademyApi();
-        api.getVideo(mVideoId)
+        final KhanAcademyApi khanAcademyApi = new KhanAcademyApi();
+        Observable<Video> deferredObservable = Observable.defer(new Func0<Observable<Video>>() {
+            @Override
+            public Observable<Video> call() {
+                return Observable.just(khanAcademyApi.getVideo(mVideoId));
+            }
+        });
+
+        deferredObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new EndlessObserver<Video>() {
