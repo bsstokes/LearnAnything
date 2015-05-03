@@ -2,10 +2,13 @@ package com.bsstokes.learnanything.models.transforms;
 
 import com.bsstokes.learnanything.models.Topic;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class ConvertDbTopicToTopicTest extends TestCase {
+import static org.junit.Assert.assertEquals;
 
+public class ConvertDbTopicToTopicTest {
+
+    @Test
     public void testShouldConvertCorrectly() {
 
         com.bsstokes.learnanything.db.models.Topic dbTopic = new com.bsstokes.learnanything.db.models.Topic();

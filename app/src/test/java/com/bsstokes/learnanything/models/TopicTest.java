@@ -1,14 +1,18 @@
 package com.bsstokes.learnanything.models;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class TopicTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+public class TopicTest {
+
+    @Test
     public void testSmoke() {
         Topic topic = Topic.builder()
                 .id("123")
                 .translatedTitle("Title")
-//                .slug("test")
                 .build();
 
         assertEquals("123", topic.getId());
@@ -17,6 +21,7 @@ public class TopicTest extends TestCase {
         assertEquals(3, topic.getId().length());
     }
 
+    @Test
     public void testNull() {
         Topic topic = Topic.builder()
                 .id(null)

@@ -1,9 +1,12 @@
 package com.bsstokes.learnanything.models;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class ArticleTest extends TestCase {
+import static org.junit.Assert.assertEquals;
 
+public class ArticleTest {
+
+    @Test
     public void testSomething() {
         Article article = Article.builder()
                 .id("1")
