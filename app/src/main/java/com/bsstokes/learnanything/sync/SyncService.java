@@ -6,7 +6,7 @@ import android.content.Intent;
 
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 
-import rx.schedulers.Schedulers;
+import rx.Observable;
 
 public class SyncService extends IntentService {
     private static final String ACTION_SYNC_TOPIC_TREE = "com.bsstokes.learnanything.sync.action.SYNC_TOPIC_LIST";
@@ -49,17 +49,13 @@ public class SyncService extends IntentService {
 
     private void handleActionSyncTopicTree() {
         KhanAcademyApi khanAcademyApi = new KhanAcademyApi();
-        khanAcademyApi.getTopicTreeOfKindTopic()
-                .observeOn(Schedulers.immediate())
-                .subscribeOn(Schedulers.immediate())
+        Observable.just(khanAcademyApi.getTopicTreeOfKindTopic())
                 .subscribe(new SaveTopicTreeObserver(this));
     }
 
     private void handleActionSyncTopic(String topicSlug, boolean isTopLevel) {
         KhanAcademyApi khanAcademyApi = new KhanAcademyApi();
-        khanAcademyApi.getTopic(topicSlug)
-                .observeOn(Schedulers.immediate())
-                .subscribeOn(Schedulers.immediate())
+        Observable.just(khanAcademyApi.getTopic(topicSlug))
                 .subscribe(new SaveTopicObserver(this, isTopLevel));
     }
 }

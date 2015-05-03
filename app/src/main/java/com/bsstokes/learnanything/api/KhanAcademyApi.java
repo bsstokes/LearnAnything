@@ -17,10 +17,10 @@ public class KhanAcademyApi {
 
     protected interface KhanAcademyService {
         @GET("/topictree")
-        Observable<TopicTree> getTopicTree(@Query("kind") String kind);
+        TopicTree getTopicTree(@Query("kind") String kind);
 
         @GET("/topic/{topic_slug}")
-        Observable<Topic> getTopic(@Path("topic_slug") String topicSlug);
+        Topic getTopic(@Path("topic_slug") String topicSlug);
 
         @GET("/videos/{video_id}")
         Observable<Video> getVideo(@Path("video_id") String videoId);
@@ -43,11 +43,11 @@ public class KhanAcademyApi {
         mService = restAdapter.create(KhanAcademyService.class);
     }
 
-    public Observable<TopicTree> getTopicTreeOfKindTopic() {
+    public TopicTree getTopicTreeOfKindTopic() {
         return mService.getTopicTree("Topic");
     }
 
-    public Observable<Topic> getTopic(String topicSlug) {
+    public Topic getTopic(String topicSlug) {
         return mService.getTopic(topicSlug);
     }
 
