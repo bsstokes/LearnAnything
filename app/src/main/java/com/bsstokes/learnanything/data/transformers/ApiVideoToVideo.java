@@ -13,6 +13,7 @@ public class ApiVideoToVideo implements Func1<com.bsstokes.learnanything.api.mod
                 .htmlDescription(video.translated_description_html)
                 .url(video.url)
                 .imageUrl(video.image_url)
+                .readableId(video.readable_id)
                 .build();
     }
 }

@@ -16,15 +16,14 @@ public abstract class Video {
     @Nullable
     public abstract String getHtmlDescription();
 
-//    public abstract String getDownloadUrl();
-
     @Nullable
     public abstract String getUrl();
 
     @Nullable
     public abstract String getImageUrl();
 
-//    public abstract String getSlug();
+    @Nullable
+    public abstract String getReadableId();
 
     public static Builder builder() {
         return new AutoParcel_Video.Builder();
@@ -41,6 +40,8 @@ public abstract class Video {
         Builder url(String url);
 
         Builder imageUrl(String title);
+
+        Builder readableId(String readableId);
 
         Video build();
     }
