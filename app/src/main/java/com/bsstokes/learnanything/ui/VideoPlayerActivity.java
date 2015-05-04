@@ -2,39 +2,33 @@ package com.bsstokes.learnanything.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBarActivity;
+import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bsstokes.learnanything.R;
-import com.bsstokes.learnanything.api.Categories;
-import com.bsstokes.learnanything.api.KhanAcademyApi;
-import com.bsstokes.learnanything.api.models.Video;
+import com.bsstokes.learnanything.models.Video;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
+import com.bsstokes.learnanything.ui.video.VideoLoader;
+import com.bsstokes.learnanything.ui.video.VideoPresenter;
+import com.bsstokes.learnanything.ui.video.VideoView;
 import com.squareup.picasso.Picasso;
 
-import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func0;
-import rx.schedulers.Schedulers;
 
-public class VideoPlayerActivity extends ActionBarActivity {
+public class VideoPlayerActivity extends BaseActionBarActivity implements VideoView {
 
-    public static final String EXTRA_VIDEO_ID = "videoId";
-    public static final String EXTRA_VIDEO_TITLE = "videoTitle";
-    public static final String EXTRA_TOP_TOPIC_SLUG = "topTopicSlug";
+    private static final String EXTRA_VIDEO_ID = "videoId";
+    private static final String EXTRA_VIDEO_TITLE = "videoTitle";
+    private static final String EXTRA_TOP_TOPIC_SLUG = "topTopicSlug";
 
     public static void startActivity(Context context, String videoId, String videoTitle, String topTopicSlug) {
         Intent intent = new Intent(context, VideoPlayerActivity.class);
@@ -58,16 +52,24 @@ public class VideoPlayerActivity extends ActionBarActivity {
 
     private String mVideoId;
     private String mVideoTitle;
-    private VideoAdapter mVideoAdapter;
     private String mTopTopicSlug;
+
+    private VideoPresenter videoPresenter;
+
+    @Override
+    protected int getContentView() {
+        return R.layout.activity_video_player;
+    }
+
+    @Override
+    @Nullable
+    protected View getHeaderSectionView() {
+        return mHeaderSection;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video_player);
-        ButterKnife.inject(this);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
@@ -76,42 +78,25 @@ public class VideoPlayerActivity extends ActionBarActivity {
             mTopTopicSlug = extras.getString(EXTRA_TOP_TOPIC_SLUG, mTopTopicSlug);
         }
 
-        mVideoAdapter = new VideoAdapter(mVideoTitle);
+        configureColors(mTopTopicSlug);
 
-        configureColors();
+        videoPresenter = new VideoPresenter(this);
 
-        final KhanAcademyApi khanAcademyApi = new KhanAcademyApi();
-        Observable<Video> deferredObservable = Observable.defer(new Func0<Observable<Video>>() {
-            @Override
-            public Observable<Video> call() {
-                return Observable.just(khanAcademyApi.getVideo(mVideoId));
-            }
-        });
-
-        deferredObservable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+        VideoLoader videoLoader = new VideoLoader();
+        videoLoader.loadVideo(mVideoId)
                 .subscribe(new EndlessObserver<Video>() {
                     @Override
                     public void onNext(Video video) {
-                        mVideoAdapter.setVideo(video);
-                        updateUI();
+                        videoPresenter.setVideo(video);
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        Toast.makeText(VideoPlayerActivity.this, "Oops. Download failed!", Toast.LENGTH_SHORT).show();
+                        toast("Oops. Download failed!");
                     }
                 });
 
-        updateUI();
-    }
-
-    private void configureColors() {
-        int colorResId = Categories.getColorForCategory(mTopTopicSlug);
-        int color = getResources().getColor(colorResId);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
-        mHeaderSection.setBackgroundColor(color);
+        videoPresenter.update();
     }
 
     @Override
@@ -124,92 +109,67 @@ public class VideoPlayerActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateUI() {
-        setTitle(mVideoAdapter.getTitle());
-        mTitleTextView.setText(mVideoAdapter.getTitle());
-
-        if (mVideoAdapter.hasHtmlDescription()) {
-            mDescriptionTextView.setVisibility(View.VISIBLE);
-            mDescriptionTextView.setText(Html.fromHtml(mVideoAdapter.getHtmlDescription()));
-        } else {
-            mDescriptionTextView.setVisibility(View.GONE);
-        }
-
-        String imageUrl = mVideoAdapter.getImageUrl();
-        Picasso.with(this).load(imageUrl).into(mVideoImageView);
-    }
-
     @OnClick(R.id.video_image_view)
     void onClickVideoImageView() {
-        onOpenVideo();
+        videoPresenter.openVideo();
     }
 
     @OnClick(R.id.watch_video_button)
     void onClickWatchVideoButton() {
-        onOpenVideo();
+        videoPresenter.openVideo();
     }
 
-    private void onOpenVideo() {
-        String videoUrl = mVideoAdapter.getVideoUrl();
-        if (null != videoUrl && !TextUtils.isEmpty(videoUrl)) {
-            openVideoUrl(videoUrl);
-        }
-    }
-
-    private void openVideoUrl(@NonNull String videoUrl) {
+    @Override
+    public void openVideoUrl(@NonNull String videoUrl) {
         Uri uri = Uri.parse(videoUrl);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
     }
 
-    private static class VideoAdapter {
-        private Video video;
-        private String defaultTitle;
+    @Override
+    public void onLoading() {
+        setTitle(mVideoTitle);
+        mTitleTextView.setText(mVideoTitle);
+        mDescriptionTextView.setText(null);
 
-        public VideoAdapter(String defaultTitle) {
-            this.defaultTitle = defaultTitle;
-        }
+        toast("onLoading");
+    }
 
-        public void setVideo(Video video) {
-            this.video = video;
-        }
+//    @Override
+//    public void update(@NonNull com.bsstokes.learnanything.models.Video video) {
+//        setTitle(video.getTitle());
+//        mTitleTextView.setText(video.getTitle());
+//
+//        String htmlDescription = video.getHtmlDescription();
+//        if (TextUtils.isEmpty(htmlDescription)) {
+//            mDescriptionTextView.setVisibility(View.GONE);
+//        } else {
+//            mDescriptionTextView.setVisibility(View.VISIBLE);
+//            mDescriptionTextView.setText(Html.fromHtml(htmlDescription));
+//        }
+//
+//        String imageUrl = video.getImageUrl();
+//        Picasso.with(this).load(imageUrl).into(mVideoImageView);
+//    }
 
-        public String getTitle() {
-            if (null == video) {
-                return defaultTitle;
-            } else {
-                return video.translated_title;
-            }
-        }
+    @Override
+    public void setVideoTitle(String title) {
+        setTitle(title);
+        mTitleTextView.setText(title);
+    }
 
-        public String getHtmlDescription() {
-            if (null == video) {
-                return null;
-            } else {
-                return video.translated_description_html;
-            }
+    @Override
+    public void setVideoHtmlDescription(String htmlDescription) {
+        if (TextUtils.isEmpty(htmlDescription)) {
+            mDescriptionTextView.setVisibility(View.GONE);
+        } else {
+            mDescriptionTextView.setVisibility(View.VISIBLE);
+            mDescriptionTextView.setText(Html.fromHtml(htmlDescription));
         }
+    }
 
-        public boolean hasHtmlDescription() {
-            return !TextUtils.isEmpty(getHtmlDescription());
-        }
-
-        public String getImageUrl() {
-            if (null == video) {
-                return null;
-            } else if (null != video.download_urls && video.download_urls.containsKey("png")) {
-                return video.download_urls.get("png");
-            } else {
-                return video.image_url;
-            }
-        }
-
-        public String getVideoUrl() {
-            if (null == video) {
-                return null;
-            } else {
-                return video.url;
-            }
-        }
+    @Override
+    public void setVideoImageUrl(String imageUrl) {
+        Picasso.with(this).load(imageUrl).into(mVideoImageView);
     }
 }
