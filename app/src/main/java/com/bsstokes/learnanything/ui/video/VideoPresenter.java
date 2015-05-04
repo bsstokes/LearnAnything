@@ -73,5 +73,11 @@ public class VideoPresenter {
         public String getImageUrl() {
             return null;
         }
+
+        @Nullable
+        @Override
+        public String getReadableId() {
+            return null;
+        }
     };
 }

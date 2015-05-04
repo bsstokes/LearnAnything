@@ -2,33 +2,45 @@ package com.bsstokes.learnanything.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bsstokes.learnanything.R;
+import com.bsstokes.learnanything.data.transformers.CursorToVideo;
+import com.bsstokes.learnanything.db.Database;
+import com.bsstokes.learnanything.db.DbOpenHelper;
 import com.bsstokes.learnanything.models.Video;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.bsstokes.learnanything.ui.video.VideoLoader;
 import com.bsstokes.learnanything.ui.video.VideoPresenter;
 import com.bsstokes.learnanything.ui.video.VideoView;
 import com.squareup.picasso.Picasso;
+import com.squareup.sqlbrite.SqlBrite;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.InjectView;
 import butterknife.OnClick;
+import rx.functions.Action1;
 
 public class VideoPlayerActivity extends BaseActionBarActivity implements VideoView {
 
     private static final String EXTRA_VIDEO_ID = "videoId";
     private static final String EXTRA_VIDEO_TITLE = "videoTitle";
     private static final String EXTRA_TOP_TOPIC_SLUG = "topTopicSlug";
+
+    private static final String TAG = "VideoPlayerActivity";
 
     public static void startActivity(Context context, String videoId, String videoTitle, String topTopicSlug) {
         Intent intent = new Intent(context, VideoPlayerActivity.class);
@@ -82,21 +94,68 @@ public class VideoPlayerActivity extends BaseActionBarActivity implements VideoV
 
         videoPresenter = new VideoPresenter(this);
 
+        DbOpenHelper dbOpenHelper = new DbOpenHelper(this);
+        final SqlBrite db = SqlBrite.create(dbOpenHelper);
+        final Database database = new Database(db);
+
         VideoLoader videoLoader = new VideoLoader();
         videoLoader.loadVideo(mVideoId)
                 .subscribe(new EndlessObserver<Video>() {
                     @Override
                     public void onNext(Video video) {
                         videoPresenter.setVideo(video);
+                        long createResult = database.createOrUpdate(video);
+                        Log.d(TAG, "createResult=" + createResult);
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        toast("Oops. Download failed!");
+                        String message = "Oops. Download failed!";
+                        toast(message);
+                        Log.e(TAG, message, throwable);
                     }
                 });
 
         videoPresenter.update();
+
+        database.getVideoByReadableId(mVideoId)
+                .subscribe(new Action1<SqlBrite.Query>() {
+                    @Override
+                    public void call(SqlBrite.Query query) {
+                        Log.d(TAG, "query = " + query);
+                        try (Cursor cursor = query.run()) {
+                            List<Video> values = new ArrayList<>(cursor.getCount());
+
+                            while (cursor.moveToNext()) {
+                                Video video = new CursorToVideo().call(cursor);
+                                values.add(video);
+                            }
+
+                            for (Video video : values) {
+                                Log.d(TAG, "Single Video: " + video.getId());
+                            }
+                        }
+                    }
+                });
+
+        database.getAllVideos()
+                .subscribe(new Action1<SqlBrite.Query>() {
+                    @Override
+                    public void call(SqlBrite.Query query) {
+                        try (Cursor cursor = query.run()) {
+                            List<Video> values = new ArrayList<>(cursor.getCount());
+
+                            while (cursor.moveToNext()) {
+                                Video video = new CursorToVideo().call(cursor);
+                                values.add(video);
+                            }
+
+                            for (Video video : values) {
+                                Log.d(TAG, "Video: " + video.getId());
+                            }
+                        }
+                    }
+                });
     }
 
     @Override
