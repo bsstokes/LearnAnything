@@ -14,6 +14,10 @@ import butterknife.ButterKnife;
 
 public abstract class BaseActionBarActivity extends ActionBarActivity {
 
+    MainApplication getMainApplication() {
+        return (MainApplication) getApplication();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
