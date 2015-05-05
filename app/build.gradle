@@ -49,6 +49,11 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:support-annotations:22.0.0'
 
+    // Dagger
+    compile 'com.google.dagger:dagger:2.0'
+    apt 'com.google.dagger:dagger-compiler:2.0'
+    provided 'org.glassfish:javax.annotation:10.0-b28'
+
     compile 'com.crashlytics.android:crashlytics:1.1.13'
     compile 'com.jakewharton:butterknife:6.0.0'
     compile 'com.squareup.okhttp:okhttp:2.2.0'
@@ -57,7 +62,7 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.4.0'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.sqlbrite:sqlbrite:0.1.0'
-    compile 'io.realm:realm-android:0.79.1'
+    compile 'io.realm:realm-android:0.80.2'
     compile 'io.reactivex:rxandroid:0.24.0'
     compile 'com.github.frankiesardo:auto-parcel:0.3'
     apt 'com.github.frankiesardo:auto-parcel-processor:0.3'
