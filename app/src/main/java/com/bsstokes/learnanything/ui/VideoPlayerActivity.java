@@ -18,7 +18,6 @@ import android.widget.TextView;
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.data.transformers.CursorToVideo;
 import com.bsstokes.learnanything.db.Database;
-import com.bsstokes.learnanything.db.DbOpenHelper;
 import com.bsstokes.learnanything.models.Video;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.bsstokes.learnanything.ui.video.VideoLoader;
@@ -29,6 +28,8 @@ import com.squareup.sqlbrite.SqlBrite;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -68,6 +69,9 @@ public class VideoPlayerActivity extends BaseActionBarActivity implements VideoV
 
     private VideoPresenter videoPresenter;
 
+    @Inject
+    SqlBrite sqlBrite;
+
     @Override
     protected int getContentView() {
         return R.layout.activity_video_player;
@@ -83,6 +87,10 @@ public class VideoPlayerActivity extends BaseActionBarActivity implements VideoV
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getMainApplication().component().inject(this);
+
+        Log.d(TAG, "sqlBrite=" + sqlBrite);
+
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
             mVideoId = extras.getString(EXTRA_VIDEO_ID, mVideoId);
@@ -94,9 +102,7 @@ public class VideoPlayerActivity extends BaseActionBarActivity implements VideoV
 
         videoPresenter = new VideoPresenter(this);
 
-        DbOpenHelper dbOpenHelper = new DbOpenHelper(this);
-        final SqlBrite db = SqlBrite.create(dbOpenHelper);
-        final Database database = new Database(db);
+        final Database database = new Database(sqlBrite);
 
         VideoLoader videoLoader = new VideoLoader();
         videoLoader.loadVideo(mVideoId)
