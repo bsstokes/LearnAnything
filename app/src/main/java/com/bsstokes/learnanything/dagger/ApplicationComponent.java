@@ -1,5 +1,7 @@
 package com.bsstokes.learnanything.dagger;
 
+import com.bsstokes.learnanything.sync.SyncService;
+import com.bsstokes.learnanything.ui.ArticleActivity;
 import com.bsstokes.learnanything.ui.MainApplication;
 import com.bsstokes.learnanything.ui.VideoPlayerActivity;
 
@@ -12,5 +14,9 @@ import dagger.Component;
 public interface ApplicationComponent {
     void inject(MainApplication application);
 
+    void inject(ArticleActivity activity);
+
     void inject(VideoPlayerActivity activity);
+
+    void inject(SyncService service);
 }
