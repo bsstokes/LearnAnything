@@ -70,6 +70,6 @@ public class SyncService extends IntentService {
 
     private void handleActionSyncTopic(String topicSlug, boolean isTopLevel) {
         Observable.just(khanAcademyApi.getTopic(topicSlug))
-                .subscribe(new SaveTopicObserver(this, isTopLevel));
+                .subscribe(new SaveTopicObserver(this, database, isTopLevel));
     }
 }

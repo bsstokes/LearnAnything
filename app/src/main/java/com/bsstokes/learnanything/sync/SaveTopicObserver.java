@@ -3,6 +3,8 @@ package com.bsstokes.learnanything.sync;
 import android.content.Context;
 
 import com.bsstokes.learnanything.api.models.Topic;
+import com.bsstokes.learnanything.data.transformers.ApiChildToChild;
+import com.bsstokes.learnanything.db.Database;
 import com.bsstokes.learnanything.db.models.Article;
 import com.bsstokes.learnanything.db.models.Child;
 import com.bsstokes.learnanything.db.models.Exercise;
@@ -13,16 +15,24 @@ import io.realm.Realm;
 
 public class SaveTopicObserver extends EndlessObserver<Topic> {
 
-    private Context context;
-    private boolean isTopLevel;
+    private final Context context;
+    private final Database database;
+    private final boolean isTopLevel;
 
-    public SaveTopicObserver(Context context, boolean isTopLevel) {
+    public SaveTopicObserver(Context context, Database database, boolean isTopLevel) {
         this.context = context;
+        this.database = database;
         this.isTopLevel = isTopLevel;
     }
 
     @Override
     public void onNext(final Topic topic) {
+
+        for (com.bsstokes.learnanything.api.models.Child apiChild : topic.children) {
+            com.bsstokes.learnanything.models.Child child = new ApiChildToChild().call(apiChild);
+            database.createOrUpdate(child);
+        }
+
         try (final Realm realm = Realm.getInstance(context)) {
             realm.executeTransaction(new Realm.Transaction() {
                 @Override
