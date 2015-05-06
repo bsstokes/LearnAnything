@@ -5,7 +5,6 @@ import android.content.Context;
 import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.data.transformers.ApiChildToChild;
 import com.bsstokes.learnanything.db.Database;
-import com.bsstokes.learnanything.db.models.Article;
 import com.bsstokes.learnanything.db.models.Child;
 import com.bsstokes.learnanything.db.models.Exercise;
 import com.bsstokes.learnanything.db.models.Video;
@@ -81,17 +80,6 @@ public class SaveTopicObserver extends EndlessObserver<Topic> {
                             }
 
                             dbChild.setExercise(exercise);
-
-                        } else if ("Article".equalsIgnoreCase(kind)) {
-
-                            Article article = realm.where(Article.class).equalTo("id", apiChild.internal_id).findFirst();
-                            if (null == article) {
-                                article = new Article();
-                                Converter.convert(apiChild, article);
-                                article = realm.copyToRealm(article);
-                            }
-
-                            dbChild.setArticle(article);
                         }
                     }
                 }

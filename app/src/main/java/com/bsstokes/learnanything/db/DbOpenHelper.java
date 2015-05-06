@@ -14,8 +14,9 @@ public final class DbOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(TableConfig.Videos.CREATE);
         db.execSQL(TableConfig.Children.CREATE);
+        db.execSQL(TableConfig.Videos.CREATE);
+        db.execSQL(TableConfig.Articles.CREATE);
     }
 
     @Override

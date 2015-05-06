@@ -3,6 +3,8 @@ package com.bsstokes.learnanything.db;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.bsstokes.learnanything.data.transformers.ArticleToContentValues;
+import com.bsstokes.learnanything.models.Article;
 import com.bsstokes.learnanything.models.Child;
 import com.bsstokes.learnanything.models.Video;
 import com.squareup.sqlbrite.SqlBrite;
@@ -29,6 +31,13 @@ public class Database implements Closeable {
         getSqlBrite().close();
     }
 
+    // Articles
+
+    public long createOrUpdate(Article article) {
+        return createOrUpdate(TableConfig.Articles.TABLE, ArticleToContentValues.convert(article));
+    }
+
+
     public long createOrUpdate(Video video) {
         return getSqlBrite().insert(TableConfig.Videos.TABLE, createVideo(video), SQLiteDatabase.CONFLICT_REPLACE);
     }
@@ -45,6 +54,10 @@ public class Database implements Closeable {
 
     public long createOrUpdate(Child child) {
         return getSqlBrite().insert(TableConfig.Children.TABLE, createChild(child), SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    private long createOrUpdate(String table, ContentValues values) {
+        return getSqlBrite().insert(table, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public ContentValues createVideo(Video video) {

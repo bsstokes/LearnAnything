@@ -15,7 +15,9 @@ import android.widget.TextView;
 
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
-import com.bsstokes.learnanything.api.models.Article;
+import com.bsstokes.learnanything.data.transformers.ApiArticleToArticle;
+import com.bsstokes.learnanything.db.Database;
+import com.bsstokes.learnanything.models.Article;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.squareup.phrase.Phrase;
 
@@ -24,6 +26,7 @@ import javax.inject.Inject;
 import butterknife.InjectView;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 
@@ -53,6 +56,9 @@ public class ArticleActivity extends BaseActionBarActivity {
     @Inject
     KhanAcademyApi khanAcademyApi;
 
+    @Inject
+    Database database;
+
     private Article mArticle;
     private String mArticleInternalId;
     private String mArticleTitle;
@@ -75,10 +81,9 @@ public class ArticleActivity extends BaseActionBarActivity {
             mTopTopicSlug = extras.getString(EXTRA_TOP_TOPIC_SLUG, mTopTopicSlug);
         }
 
-        final KhanAcademyApi khanAcademyApi = new KhanAcademyApi();
-        Observable<Article> deferredObservable = Observable.defer(new Func0<Observable<Article>>() {
+        Observable<com.bsstokes.learnanything.api.models.Article> deferredObservable = Observable.defer(new Func0<Observable<com.bsstokes.learnanything.api.models.Article>>() {
             @Override
-            public Observable<Article> call() {
+            public Observable<com.bsstokes.learnanything.api.models.Article> call() {
                 return Observable.just(khanAcademyApi.getArticle(mArticleInternalId));
             }
         });
@@ -86,6 +91,13 @@ public class ArticleActivity extends BaseActionBarActivity {
         deferredObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .map(new ApiArticleToArticle())
+                .doOnNext(new Action1<Article>() {
+                    @Override
+                    public void call(Article article) {
+                        database.createOrUpdate(article);
+                    }
+                })
                 .subscribe(new EndlessObserver<Article>() {
                     @Override
                     public void onNext(Article article) {
@@ -139,11 +151,11 @@ public class ArticleActivity extends BaseActionBarActivity {
             return;
         }
 
-        String title = mArticle.translated_title;
+        String title = mArticle.getTitle();
         setTitle(title);
         mTitleTextView.setText(title);
 
-        String htmlContent = mArticle.translated_html_content;
+        String htmlContent = mArticle.getHtmlContent();
         String htmlPage = HtmlPageGenerator.generateHtmlPage(htmlContent);
         mContentWebView.loadData(htmlPage, "text/html", "UTF-8");
     }
@@ -164,7 +176,7 @@ public class ArticleActivity extends BaseActionBarActivity {
 
     private void openArticleInBrowser() {
         if (null != mArticle) {
-            String relative_url = mArticle.relative_url;
+            String relative_url = mArticle.getRelativeUrl();
 
             Uri rootUri = Uri.parse(KhanAcademyApi.WEBSITE_URL);
             Uri uri = rootUri.buildUpon()

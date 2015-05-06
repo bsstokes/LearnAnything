@@ -11,10 +11,16 @@ public abstract class Article {
     public abstract String getId();
 
     @Nullable
-    public abstract String getName();
+    public abstract String getTitle();
 
     @Nullable
-    public abstract String getTitle();
+    public abstract String getRelativeUrl();
+
+    @Nullable
+    public abstract String getHtmlContent();
+
+    @Nullable
+    public abstract String getContentId();
 
     public static Builder builder() {
         return new AutoParcel_Article.Builder();
@@ -24,9 +30,13 @@ public abstract class Article {
     public interface Builder {
         public Builder id(String id);
 
-        public Builder name(String name);
-
         public Builder title(String title);
+
+        public Builder relativeUrl(String relativeUrl);
+
+        public Builder htmlContent(String htmlContent);
+
+        public Builder contentId(String contentId);
 
         public Article build();
     }

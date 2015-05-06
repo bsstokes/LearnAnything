@@ -80,13 +80,4 @@ public class Converter {
         dbExercise.setName(apiChild.id);
         dbExercise.setTitle(apiChild.translated_title);
     }
-
-    public static void convert(
-            com.bsstokes.learnanything.api.models.Child apiChild,
-            com.bsstokes.learnanything.db.models.Article dbArticle) {
-
-        dbArticle.setId(apiChild.internal_id);
-        dbArticle.setName(apiChild.id);
-        dbArticle.setTitle(apiChild.translated_title);
-    }
 }

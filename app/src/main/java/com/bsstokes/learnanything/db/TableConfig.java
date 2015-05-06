@@ -2,25 +2,21 @@ package com.bsstokes.learnanything.db;
 
 public class TableConfig {
 
-    public static class Videos {
-        public static final String TABLE = "videos";
+    public static class Articles {
+        public static final String TABLE = "articles";
         public static final String COLUMN_ID = "id";
         public static final String COLUMN_TITLE = "title";
-        public static final String COLUMN_HTML_DESCRIPTION = "htmlDescription";
-        public static final String COLUMN_URL = "url";
-        public static final String COLUMN_IMAGE_URL = "imageUrl";
-        public static final String COLUMN_READABLE_ID = "readableId";
-        public static final String COLUMN_ENTIRE_RECORD = "entireRecord";
+        public static final String COLUMN_RELATIVE_URL = "relativeUrl";
+        public static final String COLUMN_HTML_CONTENT = "htmlContent";
+        public static final String COLUMN_CONTENT_ID = "contentId";
 
         public static final String CREATE = ""
                 + "CREATE TABLE " + TABLE + "("
                 + COLUMN_ID + " TEXT NOT NULL PRIMARY KEY,"
                 + COLUMN_TITLE + " TEXT,"
-                + COLUMN_HTML_DESCRIPTION + " TEXT,"
-                + COLUMN_URL + " TEXT,"
-                + COLUMN_IMAGE_URL + " TEXT,"
-                + COLUMN_READABLE_ID + " TEXT,"
-                + COLUMN_ENTIRE_RECORD + " INTEGER NOT NULL DEFAULT 0"
+                + COLUMN_RELATIVE_URL + " TEXT,"
+                + COLUMN_HTML_CONTENT + " TEXT,"
+                + COLUMN_CONTENT_ID + " TEXT"
                 + ")";
     }
 
@@ -47,6 +43,28 @@ public class TableConfig {
                 + COLUMN_URL + " TEXT,"
                 + COLUMN_TRANSLATED_TITLE + " TEXT,"
                 + COLUMN_NODE_SLUG + " TEXT"
+                + ")";
+    }
+
+    public static class Videos {
+        public static final String TABLE = "videos";
+        public static final String COLUMN_ID = "id";
+        public static final String COLUMN_TITLE = "title";
+        public static final String COLUMN_HTML_DESCRIPTION = "htmlDescription";
+        public static final String COLUMN_URL = "url";
+        public static final String COLUMN_IMAGE_URL = "imageUrl";
+        public static final String COLUMN_READABLE_ID = "readableId";
+        public static final String COLUMN_ENTIRE_RECORD = "entireRecord";
+
+        public static final String CREATE = ""
+                + "CREATE TABLE " + TABLE + "("
+                + COLUMN_ID + " TEXT NOT NULL PRIMARY KEY,"
+                + COLUMN_TITLE + " TEXT,"
+                + COLUMN_HTML_DESCRIPTION + " TEXT,"
+                + COLUMN_URL + " TEXT,"
+                + COLUMN_IMAGE_URL + " TEXT,"
+                + COLUMN_READABLE_ID + " TEXT,"
+                + COLUMN_ENTIRE_RECORD + " INTEGER NOT NULL DEFAULT 0"
                 + ")";
     }
 }
