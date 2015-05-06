@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.bsstokes.learnanything.data.transformers.ArticleToContentValues;
 import com.bsstokes.learnanything.data.transformers.ChildToContentValues;
+import com.bsstokes.learnanything.data.transformers.VideoToContentValues;
 import com.bsstokes.learnanything.models.Article;
 import com.bsstokes.learnanything.models.Child;
 import com.bsstokes.learnanything.models.Video;
@@ -47,7 +48,7 @@ public class Database implements Closeable {
     // Videos
 
     public long createOrUpdate(Video video) {
-        return getSqlBrite().insert(TableConfig.Videos.TABLE, createVideo(video), SQLiteDatabase.CONFLICT_REPLACE);
+        return getSqlBrite().insert(TableConfig.Videos.TABLE, VideoToContentValues.convert(video), SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public Observable<SqlBrite.Query> getVideoByReadableId(String readableId) {
@@ -60,19 +61,9 @@ public class Database implements Closeable {
         return getSqlBrite().createQuery(TableConfig.Videos.TABLE, query);
     }
 
+    // Helpers
+
     private long createOrUpdate(String table, ContentValues values) {
         return getSqlBrite().insert(table, values, SQLiteDatabase.CONFLICT_REPLACE);
-    }
-
-    public ContentValues createVideo(Video video) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(TableConfig.Videos.COLUMN_ID, video.getId());
-        contentValues.put(TableConfig.Videos.COLUMN_TITLE, video.getTitle());
-        contentValues.put(TableConfig.Videos.COLUMN_HTML_DESCRIPTION, video.getHtmlDescription());
-        contentValues.put(TableConfig.Videos.COLUMN_URL, video.getUrl());
-        contentValues.put(TableConfig.Videos.COLUMN_IMAGE_URL, video.getImageUrl());
-        contentValues.put(TableConfig.Videos.COLUMN_READABLE_ID, video.getReadableId());
-        contentValues.put(TableConfig.Videos.COLUMN_ENTIRE_RECORD, Db.BOOLEAN_FALSE);
-        return contentValues;
     }
 }
