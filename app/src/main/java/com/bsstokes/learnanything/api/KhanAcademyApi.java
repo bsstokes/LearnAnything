@@ -14,6 +14,9 @@ import retrofit.http.Query;
 
 public class KhanAcademyApi {
 
+    public static final String WEBSITE_URL = "http://www.khanacademy.org";
+    private static final String API_ENDPOINT_URL = "http://www.khanacademy.org/api/v1/";
+
     protected interface KhanAcademyService {
         @GET("/topictree")
         TopicTree getTopicTree(@Query("kind") String kind);
@@ -35,7 +38,7 @@ public class KhanAcademyApi {
 
     public KhanAcademyApi() {
         RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint("http://www.khanacademy.org/api/v1/")
+                .setEndpoint(API_ENDPOINT_URL)
                 .setLogLevel(BuildConfig.DEBUG ? RestAdapter.LogLevel.BASIC : RestAdapter.LogLevel.NONE)
                 .build();
 
