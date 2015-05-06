@@ -1,4 +1,4 @@
-package com.bsstokes.learnanything.ui;
+package com.bsstokes.learnanything.ui.video;
 
 import android.content.Context;
 import android.content.Intent;
@@ -21,9 +21,7 @@ import com.bsstokes.learnanything.data.transformers.CursorToVideo;
 import com.bsstokes.learnanything.db.Database;
 import com.bsstokes.learnanything.models.Video;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
-import com.bsstokes.learnanything.ui.video.VideoLoader;
-import com.bsstokes.learnanything.ui.video.VideoPresenter;
-import com.bsstokes.learnanything.ui.video.VideoView;
+import com.bsstokes.learnanything.ui.BaseActionBarActivity;
 import com.squareup.picasso.Picasso;
 import com.squareup.sqlbrite.SqlBrite;
 
@@ -36,7 +34,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import rx.functions.Action1;
 
-public class VideoPlayerActivity extends BaseActionBarActivity implements VideoView {
+public class VideoActivity extends BaseActionBarActivity implements VideoView {
 
     private static final String EXTRA_VIDEO_ID = "videoId";
     private static final String EXTRA_VIDEO_TITLE = "videoTitle";
@@ -45,7 +43,7 @@ public class VideoPlayerActivity extends BaseActionBarActivity implements VideoV
     private static final String TAG = "VideoPlayerActivity";
 
     public static void startActivity(Context context, String videoId, String videoTitle, String topTopicSlug) {
-        Intent intent = new Intent(context, VideoPlayerActivity.class);
+        Intent intent = new Intent(context, VideoActivity.class);
         intent.putExtra(EXTRA_VIDEO_ID, videoId);
         intent.putExtra(EXTRA_VIDEO_TITLE, videoTitle);
         intent.putExtra(EXTRA_TOP_TOPIC_SLUG, topTopicSlug);

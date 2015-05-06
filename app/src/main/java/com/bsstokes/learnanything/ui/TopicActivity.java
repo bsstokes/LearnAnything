@@ -24,6 +24,7 @@ import com.bsstokes.learnanything.models.Child;
 import com.bsstokes.learnanything.models.Topic;
 import com.bsstokes.learnanything.sync.SyncService;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
+import com.bsstokes.learnanything.ui.video.VideoActivity;
 import com.squareup.sqlbrite.SqlBrite;
 
 import java.util.ArrayList;
@@ -217,7 +218,7 @@ public class TopicActivity extends BaseActionBarActivity {
     }
 
     private void onVideoItemClick(Child video) {
-        VideoPlayerActivity.startActivity(this, video.getId(), video.getTranslatedTitle(), mTopTopicSlug);
+        VideoActivity.startActivity(this, video.getId(), video.getTranslatedTitle(), mTopTopicSlug);
     }
 
     private void onExerciseItemClick(Child exercise) {
