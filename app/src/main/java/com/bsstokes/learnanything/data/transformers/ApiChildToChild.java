@@ -1,7 +1,7 @@
 package com.bsstokes.learnanything.data.transformers;
 
 
-import com.bsstokes.learnanything.models.Child;
+import com.bsstokes.learnanything.data.Child;
 
 import rx.functions.Func1;
 

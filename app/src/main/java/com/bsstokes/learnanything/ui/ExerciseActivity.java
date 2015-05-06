@@ -17,7 +17,7 @@ import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.data.transformers.ApiExerciseToExercise;
 import com.bsstokes.learnanything.db.Database;
-import com.bsstokes.learnanything.models.Exercise;
+import com.bsstokes.learnanything.data.Exercise;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.squareup.picasso.Picasso;
 

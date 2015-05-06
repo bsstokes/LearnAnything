@@ -1,4 +1,4 @@
-package com.bsstokes.learnanything.models;
+package com.bsstokes.learnanything.data;
 
 import android.support.annotation.Nullable;
 

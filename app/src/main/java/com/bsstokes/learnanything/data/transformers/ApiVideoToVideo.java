@@ -1,6 +1,6 @@
 package com.bsstokes.learnanything.data.transformers;
 
-import com.bsstokes.learnanything.models.Video;
+import com.bsstokes.learnanything.data.Video;
 
 import rx.functions.Func1;
 

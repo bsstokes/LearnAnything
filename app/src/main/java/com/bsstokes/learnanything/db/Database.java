@@ -11,10 +11,10 @@ import com.bsstokes.learnanything.data.transformers.ChildToContentValues;
 import com.bsstokes.learnanything.data.transformers.ExerciseToContentValues;
 import com.bsstokes.learnanything.data.transformers.TopicToContentValues;
 import com.bsstokes.learnanything.data.transformers.VideoToContentValues;
-import com.bsstokes.learnanything.models.Child;
-import com.bsstokes.learnanything.models.Exercise;
-import com.bsstokes.learnanything.models.Topic;
-import com.bsstokes.learnanything.models.Video;
+import com.bsstokes.learnanything.data.Child;
+import com.bsstokes.learnanything.data.Exercise;
+import com.bsstokes.learnanything.data.Topic;
+import com.bsstokes.learnanything.data.Video;
 import com.squareup.phrase.Phrase;
 import com.squareup.sqlbrite.SqlBrite;
 

@@ -4,7 +4,7 @@ import android.content.ContentValues;
 
 import com.bsstokes.learnanything.db.Db;
 import com.bsstokes.learnanything.db.TableConfig;
-import com.bsstokes.learnanything.models.Video;
+import com.bsstokes.learnanything.data.Video;
 
 import rx.functions.Func1;
 

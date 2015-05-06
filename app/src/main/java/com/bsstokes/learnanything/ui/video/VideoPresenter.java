@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.bsstokes.learnanything.models.Video;
+import com.bsstokes.learnanything.data.Video;
 
 public class VideoPresenter {
 

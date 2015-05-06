@@ -2,8 +2,6 @@ package com.bsstokes.learnanything.ui.video;
 
 import android.support.annotation.NonNull;
 
-import com.bsstokes.learnanything.models.Video;
-
 public interface VideoView {
     void onLoading();
 

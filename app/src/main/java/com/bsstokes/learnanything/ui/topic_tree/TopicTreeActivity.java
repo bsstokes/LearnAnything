@@ -14,7 +14,7 @@ import com.bsstokes.learnanything.BuildConfig;
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.data.transformers.CursorToTopic;
 import com.bsstokes.learnanything.db.Database;
-import com.bsstokes.learnanything.models.Topic;
+import com.bsstokes.learnanything.data.Topic;
 import com.bsstokes.learnanything.sync.SyncService;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.bsstokes.learnanything.ui.BaseActionBarActivity;

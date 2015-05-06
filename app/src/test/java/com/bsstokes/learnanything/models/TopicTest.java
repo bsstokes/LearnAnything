@@ -1,5 +1,7 @@
 package com.bsstokes.learnanything.models;
 
+import com.bsstokes.learnanything.data.Topic;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

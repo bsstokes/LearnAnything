@@ -1,9 +1,10 @@
 package com.bsstokes.learnanything.sync;
 
+import com.bsstokes.learnanything.data.Child;
 import com.bsstokes.learnanything.data.transformers.ApiChildToChild;
 import com.bsstokes.learnanything.data.transformers.ApiTopicToTopic;
 import com.bsstokes.learnanything.db.Database;
-import com.bsstokes.learnanything.models.Topic;
+import com.bsstokes.learnanything.data.Topic;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 
 public class SaveTopicObserver extends EndlessObserver<com.bsstokes.learnanything.api.models.Topic> {
@@ -23,7 +24,7 @@ public class SaveTopicObserver extends EndlessObserver<com.bsstokes.learnanythin
         database.createOrUpdate(topic);
 
         for (com.bsstokes.learnanything.api.models.Child apiChild : apiTopic.children) {
-            com.bsstokes.learnanything.models.Child child = ApiChildToChild.convert(apiChild, apiTopic.id);
+            Child child = ApiChildToChild.convert(apiChild, apiTopic.id);
             database.createOrUpdate(child);
         }
     }

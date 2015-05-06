@@ -2,7 +2,7 @@ package com.bsstokes.learnanything.ui.video;
 
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.data.transformers.ApiVideoToVideo;
-import com.bsstokes.learnanything.models.Video;
+import com.bsstokes.learnanything.data.Video;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;

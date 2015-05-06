@@ -1,6 +1,6 @@
 package com.bsstokes.learnanything.data.transformers;
 
-import com.bsstokes.learnanything.models.Topic;
+import com.bsstokes.learnanything.data.Topic;
 
 import rx.functions.Func1;
 

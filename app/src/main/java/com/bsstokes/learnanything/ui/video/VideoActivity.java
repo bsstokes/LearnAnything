@@ -19,7 +19,7 @@ import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.data.transformers.CursorToVideo;
 import com.bsstokes.learnanything.db.Database;
-import com.bsstokes.learnanything.models.Video;
+import com.bsstokes.learnanything.data.Video;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.bsstokes.learnanything.ui.BaseActionBarActivity;
 import com.squareup.picasso.Picasso;

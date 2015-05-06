@@ -3,7 +3,7 @@ package com.bsstokes.learnanything.data.transformers;
 import android.content.ContentValues;
 
 import com.bsstokes.learnanything.db.TableConfig;
-import com.bsstokes.learnanything.models.Child;
+import com.bsstokes.learnanything.data.Child;
 
 import rx.functions.Func1;
 

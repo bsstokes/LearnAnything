@@ -4,7 +4,7 @@ import android.database.Cursor;
 
 import com.bsstokes.learnanything.db.Db;
 import com.bsstokes.learnanything.db.TableConfig;
-import com.bsstokes.learnanything.models.Exercise;
+import com.bsstokes.learnanything.data.Exercise;
 
 import rx.functions.Func1;
 

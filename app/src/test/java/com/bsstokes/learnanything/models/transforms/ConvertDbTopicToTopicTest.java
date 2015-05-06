@@ -1,6 +1,6 @@
 package com.bsstokes.learnanything.models.transforms;
 
-import com.bsstokes.learnanything.models.Topic;
+import com.bsstokes.learnanything.data.Topic;
 
 import org.junit.Test;
 

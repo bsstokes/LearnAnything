@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.api.Categories;
-import com.bsstokes.learnanything.models.Topic;
+import com.bsstokes.learnanything.data.Topic;
 
 import java.util.ArrayList;
 import java.util.List;
