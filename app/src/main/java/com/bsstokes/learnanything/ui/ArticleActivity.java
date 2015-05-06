@@ -15,9 +15,9 @@ import android.widget.TextView;
 
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
+import com.bsstokes.learnanything.data.Article;
 import com.bsstokes.learnanything.data.transformers.ApiArticleToArticle;
 import com.bsstokes.learnanything.db.Database;
-import com.bsstokes.learnanything.models.Article;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.squareup.phrase.Phrase;
 

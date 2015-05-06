@@ -5,12 +5,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.bsstokes.learnanything.data.Article;
 import com.bsstokes.learnanything.data.transformers.ArticleToContentValues;
 import com.bsstokes.learnanything.data.transformers.ChildToContentValues;
 import com.bsstokes.learnanything.data.transformers.ExerciseToContentValues;
 import com.bsstokes.learnanything.data.transformers.TopicToContentValues;
 import com.bsstokes.learnanything.data.transformers.VideoToContentValues;
-import com.bsstokes.learnanything.models.Article;
 import com.bsstokes.learnanything.models.Child;
 import com.bsstokes.learnanything.models.Exercise;
 import com.bsstokes.learnanything.models.Topic;
