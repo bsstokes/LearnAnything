@@ -5,6 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.bsstokes.learnanything.api.KhanAcademyApi;
+import com.bsstokes.learnanything.db.Database;
+import com.bsstokes.learnanything.ui.MainApplication;
+
+import javax.inject.Inject;
 
 import rx.Observable;
 
@@ -29,8 +33,20 @@ public class SyncService extends IntentService {
         context.startService(intent);
     }
 
+    @Inject
+    KhanAcademyApi khanAcademyApi;
+
+    @Inject
+    Database database;
+
     public SyncService() {
         super("SyncService");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        ((MainApplication) getApplication()).component().inject(this);
     }
 
     @Override
@@ -48,13 +64,11 @@ public class SyncService extends IntentService {
     }
 
     private void handleActionSyncTopicTree() {
-        KhanAcademyApi khanAcademyApi = new KhanAcademyApi();
         Observable.just(khanAcademyApi.getTopicTreeOfKindTopic())
                 .subscribe(new SaveTopicTreeObserver(this));
     }
 
     private void handleActionSyncTopic(String topicSlug, boolean isTopLevel) {
-        KhanAcademyApi khanAcademyApi = new KhanAcademyApi();
         Observable.just(khanAcademyApi.getTopic(topicSlug))
                 .subscribe(new SaveTopicObserver(this, isTopLevel));
     }
