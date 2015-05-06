@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bsstokes.learnanything.R;
+import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.data.transformers.CursorToVideo;
 import com.bsstokes.learnanything.db.Database;
 import com.bsstokes.learnanything.models.Video;
@@ -70,7 +71,10 @@ public class VideoPlayerActivity extends BaseActionBarActivity implements VideoV
     private VideoPresenter videoPresenter;
 
     @Inject
-    SqlBrite sqlBrite;
+    Database database;
+
+    @Inject
+    KhanAcademyApi khanAcademyApi;
 
     @Override
     protected int getContentView() {
@@ -89,7 +93,8 @@ public class VideoPlayerActivity extends BaseActionBarActivity implements VideoV
 
         getMainApplication().component().inject(this);
 
-        Log.d(TAG, "sqlBrite=" + sqlBrite);
+        Log.d(TAG, "database=" + database);
+        Log.d(TAG, "khanAcademyApi=" + khanAcademyApi);
 
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
@@ -102,10 +107,8 @@ public class VideoPlayerActivity extends BaseActionBarActivity implements VideoV
 
         videoPresenter = new VideoPresenter(this);
 
-        final Database database = new Database(sqlBrite);
-
         VideoLoader videoLoader = new VideoLoader();
-        videoLoader.loadVideo(mVideoId)
+        videoLoader.loadVideo(khanAcademyApi, mVideoId)
                 .subscribe(new EndlessObserver<Video>() {
                     @Override
                     public void onNext(Video video) {
@@ -199,23 +202,6 @@ public class VideoPlayerActivity extends BaseActionBarActivity implements VideoV
 
         toast("onLoading");
     }
-
-//    @Override
-//    public void update(@NonNull com.bsstokes.learnanything.models.Video video) {
-//        setTitle(video.getTitle());
-//        mTitleTextView.setText(video.getTitle());
-//
-//        String htmlDescription = video.getHtmlDescription();
-//        if (TextUtils.isEmpty(htmlDescription)) {
-//            mDescriptionTextView.setVisibility(View.GONE);
-//        } else {
-//            mDescriptionTextView.setVisibility(View.VISIBLE);
-//            mDescriptionTextView.setText(Html.fromHtml(htmlDescription));
-//        }
-//
-//        String imageUrl = video.getImageUrl();
-//        Picasso.with(this).load(imageUrl).into(mVideoImageView);
-//    }
 
     @Override
     public void setVideoTitle(String title) {

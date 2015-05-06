@@ -2,10 +2,11 @@ package com.bsstokes.learnanything.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,20 +14,20 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.bsstokes.learnanything.R;
-import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
 import com.bsstokes.learnanything.api.models.Article;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.squareup.phrase.Phrase;
 
-import butterknife.ButterKnife;
+import javax.inject.Inject;
+
 import butterknife.InjectView;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 
-public class ArticleActivity extends ActionBarActivity {
+public class ArticleActivity extends BaseActionBarActivity {
 
     public static final String EXTRA_ARTICLE_INTERNAL_ID = "articleInternalId";
     public static final String EXTRA_ARTICLE_TITLE = "articleTitle";
@@ -49,18 +50,23 @@ public class ArticleActivity extends ActionBarActivity {
     @InjectView(R.id.content_web_view)
     WebView mContentWebView;
 
+    @Inject
+    KhanAcademyApi khanAcademyApi;
+
     private Article mArticle;
     private String mArticleInternalId;
     private String mArticleTitle;
     private String mTopTopicSlug;
 
+    private static final String TAG = "ArticleActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_article);
-        ButterKnife.inject(this);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        getMainApplication().component().inject(this);
+
+        Log.d(TAG, "khanAcademyApi=" + khanAcademyApi);
 
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
@@ -88,15 +94,20 @@ public class ArticleActivity extends ActionBarActivity {
                     }
                 });
 
-        configureColors();
+        configureColors(mTopTopicSlug);
         updateUI();
     }
 
-    private void configureColors() {
-        int colorResId = Categories.getColorForCategory(mTopTopicSlug);
-        int color = getResources().getColor(colorResId);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
-        mHeaderSection.setBackgroundColor(color);
+    @Override
+    @LayoutRes
+    protected int getContentView() {
+        return R.layout.activity_article;
+    }
+
+    @Nullable
+    @Override
+    protected View getHeaderSectionView() {
+        return mHeaderSection;
     }
 
     @Override
@@ -155,7 +166,7 @@ public class ArticleActivity extends ActionBarActivity {
         if (null != mArticle) {
             String relative_url = mArticle.relative_url;
 
-            Uri rootUri = Uri.parse("http://www.khanacademy.org");
+            Uri rootUri = Uri.parse(KhanAcademyApi.WEBSITE_URL);
             Uri uri = rootUri.buildUpon()
                     .path(relative_url)
                     .build();

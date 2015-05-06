@@ -11,8 +11,7 @@ import rx.schedulers.Schedulers;
 
 public class VideoLoader {
 
-    public Observable<Video> loadVideo(final String videoId) {
-        final KhanAcademyApi khanAcademyApi = new KhanAcademyApi();
+    public Observable<Video> loadVideo(final KhanAcademyApi khanAcademyApi, final String videoId) {
         Observable<com.bsstokes.learnanything.api.models.Video> deferredObservable = Observable.defer(new Func0<Observable<com.bsstokes.learnanything.api.models.Video>>() {
             @Override
             public Observable<com.bsstokes.learnanything.api.models.Video> call() {
