@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.bsstokes.learnanything.data.transformers.ArticleToContentValues;
+import com.bsstokes.learnanything.data.transformers.ChildToContentValues;
 import com.bsstokes.learnanything.models.Article;
 import com.bsstokes.learnanything.models.Child;
 import com.bsstokes.learnanything.models.Video;
@@ -37,6 +38,13 @@ public class Database implements Closeable {
         return createOrUpdate(TableConfig.Articles.TABLE, ArticleToContentValues.convert(article));
     }
 
+    // Children
+
+    public long createOrUpdate(Child child) {
+        return getSqlBrite().insert(TableConfig.Children.TABLE, ChildToContentValues.convert(child), SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    // Videos
 
     public long createOrUpdate(Video video) {
         return getSqlBrite().insert(TableConfig.Videos.TABLE, createVideo(video), SQLiteDatabase.CONFLICT_REPLACE);
@@ -52,10 +60,6 @@ public class Database implements Closeable {
         return getSqlBrite().createQuery(TableConfig.Videos.TABLE, query);
     }
 
-    public long createOrUpdate(Child child) {
-        return getSqlBrite().insert(TableConfig.Children.TABLE, createChild(child), SQLiteDatabase.CONFLICT_REPLACE);
-    }
-
     private long createOrUpdate(String table, ContentValues values) {
         return getSqlBrite().insert(table, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
@@ -69,20 +73,6 @@ public class Database implements Closeable {
         contentValues.put(TableConfig.Videos.COLUMN_IMAGE_URL, video.getImageUrl());
         contentValues.put(TableConfig.Videos.COLUMN_READABLE_ID, video.getReadableId());
         contentValues.put(TableConfig.Videos.COLUMN_ENTIRE_RECORD, Db.BOOLEAN_FALSE);
-        return contentValues;
-    }
-
-    public ContentValues createChild(Child child) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(TableConfig.Children.COLUMN_ID, child.getId());
-        contentValues.put(TableConfig.Children.COLUMN_KIND, child.getKind());
-        contentValues.put(TableConfig.Children.COLUMN_HIDDEN, child.isHidden());
-        contentValues.put(TableConfig.Children.COLUMN_KEY, child.getKey());
-        contentValues.put(TableConfig.Children.COLUMN_INTERNAL_ID, child.getInternalId());
-        contentValues.put(TableConfig.Children.COLUMN_TITLE, child.getTitle());
-        contentValues.put(TableConfig.Children.COLUMN_URL, child.getUrl());
-        contentValues.put(TableConfig.Children.COLUMN_TRANSLATED_TITLE, child.getTranslatedTitle());
-        contentValues.put(TableConfig.Children.COLUMN_NODE_SLUG, child.getNodeSlug());
         return contentValues;
     }
 }
