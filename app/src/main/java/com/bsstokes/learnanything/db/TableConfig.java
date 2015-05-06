@@ -46,6 +46,26 @@ public class TableConfig {
                 + ")";
     }
 
+    public static class Exercises {
+        public static final String TABLE = "exercises";
+        public static final String COLUMN_ID = "id";
+        public static final String COLUMN_URL = "url";
+        public static final String COLUMN_DESCRIPTION = "description";
+        public static final String COLUMN_TITLE = "title";
+        public static final String COLUMN_IMAGE_URL = "imageUrl";
+        public static final String COLUMN_IMAGE_256_URL = "image256Url";
+
+        public static final String CREATE = ""
+                + "CREATE TABLE " + TABLE + "("
+                + COLUMN_ID + " TEXT NOT NULL PRIMARY KEY,"
+                + COLUMN_URL + " TEXT,"
+                + COLUMN_DESCRIPTION + " TEXT,"
+                + COLUMN_TITLE + " TEXT,"
+                + COLUMN_IMAGE_URL + " TEXT,"
+                + COLUMN_IMAGE_256_URL + " TEXT"
+                + ")";
+    }
+
     public static class Videos {
         public static final String TABLE = "videos";
         public static final String COLUMN_ID = "id";

@@ -18,8 +18,6 @@ public class Child extends RealmObject {
     private String id = "";
     private String editSlug = "";
     private Topic topic;
-    private Video video;
-    private Exercise exercise;
 
     public String getKind() {
         return kind;
@@ -107,21 +105,5 @@ public class Child extends RealmObject {
 
     public void setTopic(Topic topic) {
         this.topic = topic;
-    }
-
-    public Video getVideo() {
-        return video;
-    }
-
-    public void setVideo(Video video) {
-        this.video = video;
-    }
-
-    public Exercise getExercise() {
-        return exercise;
-    }
-
-    public void setExercise(Exercise exercise) {
-        this.exercise = exercise;
     }
 }

@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,11 +15,14 @@ import android.widget.TextView;
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.api.Categories;
 import com.bsstokes.learnanything.api.KhanAcademyApi;
-import com.bsstokes.learnanything.api.models.Exercise;
+import com.bsstokes.learnanything.data.transformers.ApiExerciseToExercise;
+import com.bsstokes.learnanything.db.Database;
+import com.bsstokes.learnanything.models.Exercise;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.squareup.picasso.Picasso;
 
-import butterknife.ButterKnife;
+import javax.inject.Inject;
+
 import butterknife.InjectView;
 import butterknife.OnClick;
 import rx.Observable;
@@ -27,7 +30,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 
-public class ExerciseActivity extends ActionBarActivity {
+public class ExerciseActivity extends BaseActionBarActivity {
 
     public static final String EXTRA_EXERCISE_ID = "exerciseId";
     public static final String EXTRA_EXERCISE_TITLE = "exerciseTitle";
@@ -53,18 +56,33 @@ public class ExerciseActivity extends ActionBarActivity {
     @InjectView(R.id.description_text_view)
     TextView mDescriptionTextView;
 
+    @Inject
+    KhanAcademyApi khanAcademyApi;
+
+    @Inject
+    Database database;
+
     private Exercise mExercise;
     private String mExerciseId;
     private String mExerciseTitle;
     private String mTopTopicSlug;
 
     @Override
+    protected int getContentView() {
+        return R.layout.activity_exercise;
+    }
+
+    @Nullable
+    @Override
+    protected View getHeaderSectionView() {
+        return mHeaderSection;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_exercise);
-        ButterKnife.inject(this);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        getMainApplication().component().inject(this);
 
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
@@ -73,20 +91,21 @@ public class ExerciseActivity extends ActionBarActivity {
             mTopTopicSlug = extras.getString(EXTRA_TOP_TOPIC_SLUG, mTopTopicSlug);
         }
 
-        final KhanAcademyApi api = new KhanAcademyApi();
-        Observable<Exercise> deferredObservable = Observable.defer(new Func0<Observable<Exercise>>() {
+        Observable<com.bsstokes.learnanything.api.models.Exercise> deferredObservable = Observable.defer(new Func0<Observable<com.bsstokes.learnanything.api.models.Exercise>>() {
             @Override
-            public Observable<Exercise> call() {
-                return Observable.just(api.getExercise(mExerciseId));
+            public Observable<com.bsstokes.learnanything.api.models.Exercise> call() {
+                return Observable.just(khanAcademyApi.getExercise(mExerciseId));
             }
         });
 
         deferredObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .map(new ApiExerciseToExercise())
                 .subscribe(new EndlessObserver<Exercise>() {
                     @Override
                     public void onNext(Exercise exercise) {
+                        database.createOrUpdate(exercise);
                         mExercise = exercise;
                         updateUI();
                     }
@@ -121,14 +140,14 @@ public class ExerciseActivity extends ActionBarActivity {
             return;
         }
 
-        String title = mExercise.translated_pretty_display_name;
+        String title = mExercise.getTitle();
         setTitle(title);
         mTitleTextView.setText(title);
 
-        String imageUrl = mExercise.image_url;
+        String imageUrl = mExercise.getImageUrl();
         Picasso.with(this).load(imageUrl).into(mExerciseImageView);
 
-        mDescriptionTextView.setText(mExercise.translated_description);
+        mDescriptionTextView.setText(mExercise.getDescription());
     }
 
     @OnClick(R.id.exercise_image_view)
@@ -142,8 +161,8 @@ public class ExerciseActivity extends ActionBarActivity {
     }
 
     private void openExerciseInBrowser() {
-        if (null != mExercise && !TextUtils.isEmpty(mExercise.ka_url)) {
-            Uri uri = Uri.parse(mExercise.ka_url);
+        if (null != mExercise && !TextUtils.isEmpty(mExercise.getUrl())) {
+            Uri uri = Uri.parse(mExercise.getUrl());
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(intent);
         }

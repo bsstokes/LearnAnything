@@ -6,8 +6,6 @@ import com.bsstokes.learnanything.api.models.Topic;
 import com.bsstokes.learnanything.data.transformers.ApiChildToChild;
 import com.bsstokes.learnanything.db.Database;
 import com.bsstokes.learnanything.db.models.Child;
-import com.bsstokes.learnanything.db.models.Exercise;
-import com.bsstokes.learnanything.db.models.Video;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 
 import io.realm.Realm;
@@ -58,28 +56,6 @@ public class SaveTopicObserver extends EndlessObserver<Topic> {
                             }
 
                             dbChild.setTopic(topic);
-
-                        } else if ("Video".equalsIgnoreCase(kind)) {
-
-                            Video video = realm.where(Video.class).equalTo("id", apiChild.internal_id).findFirst();
-                            if (null == video) {
-                                video = new Video();
-                                Converter.convert(apiChild, video);
-                                video = realm.copyToRealm(video);
-                            }
-
-                            dbChild.setVideo(video);
-
-                        } else if ("Exercise".equalsIgnoreCase(kind)) {
-
-                            Exercise exercise = realm.where(Exercise.class).equalTo("id", apiChild.internal_id).findFirst();
-                            if (null == exercise) {
-                                exercise = new Exercise();
-                                Converter.convert(apiChild, exercise);
-                                exercise = realm.copyToRealm(exercise);
-                            }
-
-                            dbChild.setExercise(exercise);
                         }
                     }
                 }

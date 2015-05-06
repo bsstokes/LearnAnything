@@ -5,9 +5,11 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.bsstokes.learnanything.data.transformers.ArticleToContentValues;
 import com.bsstokes.learnanything.data.transformers.ChildToContentValues;
+import com.bsstokes.learnanything.data.transformers.ExerciseToContentValues;
 import com.bsstokes.learnanything.data.transformers.VideoToContentValues;
 import com.bsstokes.learnanything.models.Article;
 import com.bsstokes.learnanything.models.Child;
+import com.bsstokes.learnanything.models.Exercise;
 import com.bsstokes.learnanything.models.Video;
 import com.squareup.sqlbrite.SqlBrite;
 
@@ -42,7 +44,13 @@ public class Database implements Closeable {
     // Children
 
     public long createOrUpdate(Child child) {
-        return getSqlBrite().insert(TableConfig.Children.TABLE, ChildToContentValues.convert(child), SQLiteDatabase.CONFLICT_REPLACE);
+        return createOrUpdate(TableConfig.Children.TABLE, ChildToContentValues.convert(child));
+    }
+
+    // Exercises
+
+    public long createOrUpdate(Exercise exercise) {
+        return createOrUpdate(TableConfig.Exercises.TABLE, ExerciseToContentValues.convert(exercise));
     }
 
     // Videos

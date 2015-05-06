@@ -56,28 +56,10 @@ public class Converter {
 
     public static void convert(
             com.bsstokes.learnanything.api.models.Child apiChild,
-            com.bsstokes.learnanything.db.models.Video dbVideo) {
-
-        dbVideo.setId(apiChild.internal_id);
-        dbVideo.setSlug(apiChild.id);
-        dbVideo.setTranslatedTitle(apiChild.translated_title);
-    }
-
-    public static void convert(
-            com.bsstokes.learnanything.api.models.Child apiChild,
             com.bsstokes.learnanything.db.models.Topic dbTopic) {
 
         dbTopic.setId(apiChild.internal_id);
         dbTopic.setSlug(apiChild.id);
         dbTopic.setTitle(apiChild.translated_title);
-    }
-
-    public static void convert(
-            com.bsstokes.learnanything.api.models.Child apiChild,
-            com.bsstokes.learnanything.db.models.Exercise dbExercise) {
-
-        dbExercise.setId(apiChild.internal_id);
-        dbExercise.setName(apiChild.id);
-        dbExercise.setTitle(apiChild.translated_title);
     }
 }
