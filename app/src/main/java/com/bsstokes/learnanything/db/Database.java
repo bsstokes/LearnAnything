@@ -2,6 +2,7 @@ package com.bsstokes.learnanything.db;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 import com.bsstokes.learnanything.data.transformers.ArticleToContentValues;
 import com.bsstokes.learnanything.data.transformers.ChildToContentValues;
@@ -45,6 +46,13 @@ public class Database implements Closeable {
 
     public long createOrUpdate(Child child) {
         return createOrUpdate(TableConfig.Children.TABLE, ChildToContentValues.convert(child));
+    }
+
+    public Observable<SqlBrite.Query> getChildren(@NonNull String parentId) {
+        String query = "SELECT * FROM " + TableConfig.Children.TABLE
+                + " WHERE "
+                + TableConfig.Children.COLUMN_PARENT_ID + " = ?";
+        return getSqlBrite().createQuery(TableConfig.Children.TABLE, query, parentId);
     }
 
     // Exercises

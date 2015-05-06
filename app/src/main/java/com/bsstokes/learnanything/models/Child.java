@@ -11,6 +11,9 @@ public abstract class Child {
     public abstract String getId();
 
     @Nullable
+    public abstract String getParentId();
+
+    @Nullable
     public abstract String getKind();
 
     public abstract boolean isHidden();
@@ -40,6 +43,8 @@ public abstract class Child {
     @AutoParcel.Builder
     public interface Builder {
         Builder id(String id);
+
+        Builder parentId(String parentId);
 
         Builder kind(String kind);
 

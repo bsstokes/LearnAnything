@@ -2,39 +2,51 @@ package com.bsstokes.learnanything.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.v7.app.ActionBarActivity;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsstokes.learnanything.R;
-import com.bsstokes.learnanything.api.Categories;
+import com.bsstokes.learnanything.data.transformers.CursorToChild;
+import com.bsstokes.learnanything.db.Database;
 import com.bsstokes.learnanything.db.models.Topic;
+import com.bsstokes.learnanything.models.Child;
 import com.bsstokes.learnanything.sync.SyncService;
+import com.bsstokes.learnanything.sync.rx.EndlessObserver;
+import com.squareup.sqlbrite.SqlBrite;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
-import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmList;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
-public class TopicActivity extends ActionBarActivity {
+public class TopicActivity extends BaseActionBarActivity {
 
     public static void startActivity(Context context, Topic topic) {
         startActivity(context, topic, topic.getSlug());
     }
 
-    public static void startActivity(Context context, com.bsstokes.learnanything.db.models.Child topic, String topTopicSlug) {
+    public static void startActivity(Context context, Child topic, String topTopicSlug) {
 
+        String parentId = topic.getId();
         String title = topic.getTitle();
         String topicSlug = topic.getId();
 
@@ -47,6 +59,7 @@ public class TopicActivity extends ActionBarActivity {
         }
 
         Intent intent = new Intent(context, TopicActivity.class);
+        intent.putExtra(EXTRA_PARENT_ID, parentId);
         intent.putExtra(EXTRA_TITLE, title);
         intent.putExtra(EXTRA_TOP_TOPIC_SLUG, topTopicSlug);
         intent.putExtra(EXTRA_TOPIC_SLUG, topicSlug);
@@ -55,6 +68,7 @@ public class TopicActivity extends ActionBarActivity {
 
     public static void startActivity(Context context, Topic topic, String topTopicSlug) {
 
+        String parentId = topic.getId();
         String title = topic.getTitle();
         String topicSlug = topic.getSlug();
 
@@ -67,12 +81,14 @@ public class TopicActivity extends ActionBarActivity {
         }
 
         Intent intent = new Intent(context, TopicActivity.class);
+        intent.putExtra(EXTRA_PARENT_ID, parentId);
         intent.putExtra(EXTRA_TITLE, title);
         intent.putExtra(EXTRA_TOP_TOPIC_SLUG, topTopicSlug);
         intent.putExtra(EXTRA_TOPIC_SLUG, topicSlug);
         context.startActivity(intent);
     }
 
+    public static final String EXTRA_PARENT_ID = "parentId";
     public static final String EXTRA_TITLE = "title";
     public static final String EXTRA_TOP_TOPIC_SLUG = "topTopicSlug";
     public static final String EXTRA_TOPIC_SLUG = "topicSlug";
@@ -80,30 +96,38 @@ public class TopicActivity extends ActionBarActivity {
     @InjectView(R.id.topic_list_view)
     ListView mTopicListView;
 
+    @Inject
+    Database database;
+
+    private String mParentId;
     private String mTitle;
     private String mTopTopicSlug;
     private String mTopicSlug;
-    private TopicListRealmAdapter mChildAdapter;
+    private TopicListAdapter mChildAdapter;
 
-    private Realm realm;
+    private static final String TAG = "TopicActivity";
+
+    @Override
+    @LayoutRes
+    protected int getContentView() {
+        return R.layout.activity_topic;
+    }
+
+    @Nullable
+    @Override
+    protected View getHeaderSectionView() {
+        return null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_topic);
-        ButterKnife.inject(this);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        realm = Realm.getInstance(this);
-        realm.addChangeListener(new RealmChangeListener() {
-            @Override
-            public void onChange() {
-                update();
-            }
-        });
+        getMainApplication().component().inject(this);
 
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
+            mParentId = extras.getString(EXTRA_PARENT_ID, mParentId);
             mTitle = extras.getString(EXTRA_TITLE, mTitle);
             mTopTopicSlug = extras.getString(EXTRA_TOP_TOPIC_SLUG, mTopTopicSlug);
             mTopicSlug = extras.getString(EXTRA_TOPIC_SLUG, mTopicSlug);
@@ -111,30 +135,48 @@ public class TopicActivity extends ActionBarActivity {
 
         setTitle(mTitle);
 
+        mChildAdapter = new TopicListAdapter(this);
+        mTopicListView.setAdapter(mChildAdapter);
+
         update();
         requestSync();
 
-        int colorResId = Categories.getColorForCategory(mTopTopicSlug);
-        int color = getResources().getColor(colorResId);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        realm.close();
+        configureColors(mTopicSlug);
     }
 
     private void update() {
-        Topic topic = realm.where(Topic.class).equalTo("slug", mTopicSlug).findFirst();
+        database.getChildren(mParentId)
+                .onBackpressureBuffer()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(new Func1<SqlBrite.Query, List<Child>>() {
+                    @Override
+                    public List<Child> call(SqlBrite.Query query) {
+                        List<Child> values;
 
-        if (null == topic) {
-            return;
-        }
+                        try (Cursor cursor = query.run()) {
+                            values = new ArrayList<>(cursor.getCount());
 
-//        mChildAdapter = new TopicListAdapter(this);
-        mChildAdapter = new TopicListRealmAdapter(this, realm, topic.getChildren());
-        mTopicListView.setAdapter(mChildAdapter);
+                            while (cursor.moveToNext()) {
+                                Child child = new CursorToChild().call(cursor);
+                                values.add(child);
+                            }
+                        }
+
+                        return values;
+                    }
+                })
+                .subscribe(new EndlessObserver<List<Child>>() {
+                    @Override
+                    public void onNext(List<Child> children) {
+                        mChildAdapter.setChildren(children);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        Log.e(TAG, "", throwable);
+                    }
+                });
     }
 
     @Override
@@ -149,7 +191,7 @@ public class TopicActivity extends ActionBarActivity {
 
     @OnItemClick(R.id.topic_list_view)
     void onItemClick(int position) {
-        com.bsstokes.learnanything.db.models.Child child = mChildAdapter.getItem(position);
+        Child child = mChildAdapter.getChild(position);
         String kind = child.getKind();
         // TODO: This is lame type checking
         if ("Topic".equalsIgnoreCase(kind)) {
@@ -165,27 +207,27 @@ public class TopicActivity extends ActionBarActivity {
         }
     }
 
-    private void onContentItemClick(com.bsstokes.learnanything.db.models.Child child) {
+    private void onContentItemClick(Child child) {
         Toast.makeText(this, "Oops (Child/" + child.getClass().getSimpleName() + ")", Toast.LENGTH_SHORT).show();
     }
 
-    private void onTopicItemClick(com.bsstokes.learnanything.db.models.Child topic) {
+    private void onTopicItemClick(Child topic) {
         TopicActivity.startActivity(this, topic, mTopTopicSlug);
     }
 
-    private void onVideoItemClick(com.bsstokes.learnanything.db.models.Child video) {
+    private void onVideoItemClick(Child video) {
         VideoPlayerActivity.startActivity(this, video.getId(), video.getTranslatedTitle(), mTopTopicSlug);
     }
 
-    private void onExerciseItemClick(com.bsstokes.learnanything.db.models.Child exercise) {
+    private void onExerciseItemClick(Child exercise) {
         ExerciseActivity.startActivity(this, exercise.getId(), exercise.getTranslatedTitle(), mTopTopicSlug);
     }
 
-    private void onArticleItemClick(com.bsstokes.learnanything.db.models.Child article) {
+    private void onArticleItemClick(Child article) {
         ArticleActivity.startActivity(this, article.getInternalId(), article.getTranslatedTitle(), mTopTopicSlug);
     }
 
-    public static class TopicListRealmAdapter extends RealmListBaseAdapter<com.bsstokes.learnanything.db.models.Child> {
+    public static class TopicListAdapter extends BaseAdapter {
 
         private static final int VIEW_TYPE_OTHER = 0;
         private static final int VIEW_TYPE_TOPIC = VIEW_TYPE_OTHER + 1;
@@ -194,8 +236,35 @@ public class TopicActivity extends ActionBarActivity {
         private static final int VIEW_TYPE_ARTICLE = VIEW_TYPE_OTHER + 4;
         private static final int VIEW_TYPE_COUNT = VIEW_TYPE_OTHER + 5;
 
-        public TopicListRealmAdapter(Context context, Realm realm, RealmList<com.bsstokes.learnanything.db.models.Child> realmList) {
-            super(context, realm, realmList, true);
+        private final Context context;
+        private List<Child> children = new ArrayList<>();
+
+        public TopicListAdapter(Context context) {
+            this.context = context;
+        }
+
+        public void setChildren(List<Child> children) {
+            this.children = children;
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public int getCount() {
+            return children.size();
+        }
+
+        public Child getChild(int position) {
+            return children.get(position);
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return getChild(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
         }
 
         @Override
@@ -233,7 +302,7 @@ public class TopicActivity extends ActionBarActivity {
         }
 
         private void bind(ViewHolder viewHolder, int position) {
-            com.bsstokes.learnanything.db.models.Child child = getItem(position);
+            Child child = getChild(position);
             viewHolder.titleTextView.setText(child.getTranslatedTitle());
         }
 
@@ -244,7 +313,7 @@ public class TopicActivity extends ActionBarActivity {
 
         @Override
         public int getItemViewType(int position) {
-            com.bsstokes.learnanything.db.models.Child child = getItem(position);
+            Child child = getChild(position);
             String kind = child.getKind();
             if ("Topic".equalsIgnoreCase(kind)) {
                 return VIEW_TYPE_TOPIC;

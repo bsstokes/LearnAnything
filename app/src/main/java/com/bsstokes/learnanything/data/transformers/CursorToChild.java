@@ -14,6 +14,7 @@ public class CursorToChild implements Func1<Cursor, Child> {
     public Child call(Cursor cursor) {
         return Child.builder()
                 .id(Db.getString(cursor, TableConfig.Children.COLUMN_ID))
+                .parentId(Db.getString(cursor, TableConfig.Children.COLUMN_PARENT_ID))
                 .kind(Db.getString(cursor, TableConfig.Children.COLUMN_KIND))
                 .hidden(Db.getBoolean(cursor, TableConfig.Children.COLUMN_HIDDEN))
                 .key(Db.getString(cursor, TableConfig.Children.COLUMN_KEY))

@@ -23,6 +23,7 @@ public class TableConfig {
     public static class Children {
         public static final String TABLE = "children";
         public static final String COLUMN_ID = "id";
+        public static final String COLUMN_PARENT_ID = "parentId";
         public static final String COLUMN_KIND = "kind";
         public static final String COLUMN_HIDDEN = "hidden";
         public static final String COLUMN_KEY = "key";
@@ -35,6 +36,7 @@ public class TableConfig {
         public static final String CREATE = ""
                 + "CREATE TABLE " + TABLE + "("
                 + COLUMN_ID + " TEXT NOT NULL PRIMARY KEY,"
+                + COLUMN_PARENT_ID + " TEXT,"
                 + COLUMN_KIND + " TEXT,"
                 + COLUMN_HIDDEN + " INTEGER NOT NULL DEFAULT 0,"
                 + COLUMN_KEY + " TEXT,"

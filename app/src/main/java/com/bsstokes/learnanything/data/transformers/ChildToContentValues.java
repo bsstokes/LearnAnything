@@ -17,6 +17,7 @@ public class ChildToContentValues implements Func1<Child, ContentValues> {
     public ContentValues call(Child child) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(TableConfig.Children.COLUMN_ID, child.getId());
+        contentValues.put(TableConfig.Children.COLUMN_PARENT_ID, child.getParentId());
         contentValues.put(TableConfig.Children.COLUMN_KIND, child.getKind());
         contentValues.put(TableConfig.Children.COLUMN_HIDDEN, child.isHidden());
         contentValues.put(TableConfig.Children.COLUMN_KEY, child.getKey());
