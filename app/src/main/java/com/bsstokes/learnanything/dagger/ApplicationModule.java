@@ -3,6 +3,8 @@ package com.bsstokes.learnanything.dagger;
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.bsstokes.learnanything.api.KhanAcademyApi;
+import com.bsstokes.learnanything.db.Database;
 import com.bsstokes.learnanything.db.DbOpenHelper;
 import com.bsstokes.learnanything.ui.MainApplication;
 import com.squareup.sqlbrite.SqlBrite;
@@ -37,5 +39,17 @@ public class ApplicationModule {
     @Singleton
     SqlBrite provideSqlBrite(SQLiteOpenHelper sqliteOpenHelper) {
         return SqlBrite.create(sqliteOpenHelper);
+    }
+
+    @Provides
+    @Singleton
+    Database provideDatabase(SqlBrite sqlBrite) {
+        return new Database(sqlBrite);
+    }
+
+    @Provides
+    @Singleton
+    KhanAcademyApi provideKhanAcademyApi() {
+        return new KhanAcademyApi();
     }
 }
