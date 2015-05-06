@@ -14,7 +14,7 @@ import butterknife.ButterKnife;
 
 public abstract class BaseActionBarActivity extends ActionBarActivity {
 
-    MainApplication getMainApplication() {
+    protected MainApplication getMainApplication() {
         return (MainApplication) getApplication();
     }
 

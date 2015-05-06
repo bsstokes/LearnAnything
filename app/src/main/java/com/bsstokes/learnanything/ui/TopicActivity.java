@@ -20,8 +20,8 @@ import android.widget.Toast;
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.data.transformers.CursorToChild;
 import com.bsstokes.learnanything.db.Database;
-import com.bsstokes.learnanything.db.models.Topic;
 import com.bsstokes.learnanything.models.Child;
+import com.bsstokes.learnanything.models.Topic;
 import com.bsstokes.learnanything.sync.SyncService;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
 import com.squareup.sqlbrite.SqlBrite;
@@ -46,7 +46,7 @@ public class TopicActivity extends BaseActionBarActivity {
 
     public static void startActivity(Context context, Child topic, String topTopicSlug) {
 
-        String parentId = topic.getId();
+        String parentId = topic.getInternalId();
         String title = topic.getTitle();
         String topicSlug = topic.getId();
 
@@ -125,6 +125,7 @@ public class TopicActivity extends BaseActionBarActivity {
 
         getMainApplication().component().inject(this);
 
+
         Bundle extras = getIntent().getExtras();
         if (null != extras) {
             mParentId = extras.getString(EXTRA_PARENT_ID, mParentId);
@@ -141,7 +142,7 @@ public class TopicActivity extends BaseActionBarActivity {
         update();
         requestSync();
 
-        configureColors(mTopicSlug);
+        configureColors(mTopTopicSlug);
     }
 
     private void update() {

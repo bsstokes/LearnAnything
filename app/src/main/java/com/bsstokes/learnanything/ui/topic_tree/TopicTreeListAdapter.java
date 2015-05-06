@@ -1,25 +1,57 @@
 package com.bsstokes.learnanything.ui.topic_tree;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.bsstokes.learnanything.R;
 import com.bsstokes.learnanything.api.Categories;
-import com.bsstokes.learnanything.db.models.Topic;
+import com.bsstokes.learnanything.models.Topic;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import io.realm.RealmBaseAdapter;
-import io.realm.RealmResults;
 
-public class TopicTreeListAdapter extends RealmBaseAdapter<Topic> implements ListAdapter {
+public class TopicTreeListAdapter extends BaseAdapter {
 
-    public TopicTreeListAdapter(Context context, RealmResults<Topic> realmResults) {
-        super(context, realmResults, true);
+    @NonNull
+    private final Context context;
+
+    @NonNull
+    private List<Topic> topics = new ArrayList<>();
+
+    public TopicTreeListAdapter(@NonNull Context context) {
+        this.context = context;
+    }
+
+    public void setTopics(@NonNull List<Topic> topics) {
+        this.topics = topics;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getCount() {
+        return topics.size();
+    }
+
+    public Topic getTopic(int position) {
+        return topics.get(position);
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return getTopic(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return 0;
     }
 
     @Override
@@ -36,21 +68,13 @@ public class TopicTreeListAdapter extends RealmBaseAdapter<Topic> implements Lis
     }
 
     private void bind(ViewHolder viewHolder, int position) {
-        Topic topic = realmResults.get(position);
+        Topic topic = getTopic(position);
         viewHolder.titleTextView.setText(topic.getTitle());
         viewHolder.categoryColorView.setVisibility(View.VISIBLE);
 
         int colorRes = Categories.getColorForCategory(topic.getSlug());
         int color = context.getResources().getColor(colorRes);
         viewHolder.categoryColorView.setBackgroundColor(color);
-    }
-
-    public Topic getTopic(int position) {
-        return getRealmResults().get(position);
-    }
-
-    public RealmResults<Topic> getRealmResults() {
-        return realmResults;
     }
 
     public static class ViewHolder {

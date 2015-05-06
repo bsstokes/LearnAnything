@@ -68,6 +68,25 @@ public class TableConfig {
                 + ")";
     }
 
+    public static class Topics {
+        public static final String TABLE = "topics";
+        public static final String COLUMN_ID = "id";
+        public static final String COLUMN_TITLE = "title";
+        public static final String COLUMN_SLUG = "slug";
+        public static final String COLUMN_KIND = "kind";
+        public static final String COLUMN_TOP_LEVEL = "topLevel";
+        public static final String COLUMN_PARENT_ID = "parentId";
+        public static final String CREATE = ""
+                + "CREATE TABLE " + TABLE + "("
+                + COLUMN_ID + " TEXT NOT NULL PRIMARY KEY,"
+                + COLUMN_TITLE + " TEXT,"
+                + COLUMN_SLUG + " TEXT,"
+                + COLUMN_KIND + " TEXT,"
+                + COLUMN_TOP_LEVEL + " INTEGER NOT NULL DEFAULT 0,"
+                + COLUMN_PARENT_ID + " TEXT"
+                + ")";
+    }
+
     public static class Videos {
         public static final String TABLE = "videos";
         public static final String COLUMN_ID = "id";

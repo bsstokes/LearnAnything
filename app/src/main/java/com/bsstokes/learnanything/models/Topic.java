@@ -11,13 +11,18 @@ public abstract class Topic {
     public abstract String getId();
 
     @Nullable
-    public abstract String getTranslatedTitle();
+    public abstract String getTitle();
 
     @Nullable
     public abstract String getSlug();
 
     @Nullable
     public abstract String getKind();
+
+    public abstract boolean isTopLevel();
+
+    @Nullable
+    public abstract String getParentId();
 
     public static Builder builder() {
         return new AutoParcel_Topic.Builder()
@@ -28,11 +33,15 @@ public abstract class Topic {
     public interface Builder {
         Builder id(String id);
 
-        Builder translatedTitle(String translatedTitle);
-
-        Builder kind(String topic);
+        Builder title(String title);
 
         Builder slug(String slug);
+
+        Builder kind(String kind);
+
+        Builder topLevel(boolean topLevel);
+
+        Builder parentId(String parentId);
 
         Topic build();
     }

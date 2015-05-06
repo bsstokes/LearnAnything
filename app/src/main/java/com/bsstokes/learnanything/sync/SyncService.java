@@ -65,11 +65,11 @@ public class SyncService extends IntentService {
 
     private void handleActionSyncTopicTree() {
         Observable.just(khanAcademyApi.getTopicTreeOfKindTopic())
-                .subscribe(new SaveTopicTreeObserver(this));
+                .subscribe(new SaveTopicTreeObserver(database));
     }
 
     private void handleActionSyncTopic(String topicSlug, boolean isTopLevel) {
         Observable.just(khanAcademyApi.getTopic(topicSlug))
-                .subscribe(new SaveTopicObserver(this, database, isTopLevel));
+                .subscribe(new SaveTopicObserver(database, isTopLevel));
     }
 }

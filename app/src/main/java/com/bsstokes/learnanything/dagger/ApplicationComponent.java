@@ -6,6 +6,7 @@ import com.bsstokes.learnanything.ui.ExerciseActivity;
 import com.bsstokes.learnanything.ui.MainApplication;
 import com.bsstokes.learnanything.ui.TopicActivity;
 import com.bsstokes.learnanything.ui.VideoPlayerActivity;
+import com.bsstokes.learnanything.ui.topic_tree.TopicTreeActivity;
 
 import javax.inject.Singleton;
 
@@ -22,6 +23,8 @@ public interface ApplicationComponent {
     void inject(ExerciseActivity activity);
 
     void inject(TopicActivity activity);
+
+    void inject(TopicTreeActivity activity);
 
     void inject(VideoPlayerActivity activity);
 

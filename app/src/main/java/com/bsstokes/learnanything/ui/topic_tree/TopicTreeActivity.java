@@ -1,59 +1,100 @@
 package com.bsstokes.learnanything.ui.topic_tree;
 
+import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.bsstokes.learnanything.BuildConfig;
 import com.bsstokes.learnanything.R;
-import com.bsstokes.learnanything.db.RealmUtils;
-import com.bsstokes.learnanything.db.models.Topic;
-import com.bsstokes.learnanything.dev_tools.CopyFile;
+import com.bsstokes.learnanything.data.transformers.CursorToTopic;
+import com.bsstokes.learnanything.db.Database;
+import com.bsstokes.learnanything.models.Topic;
 import com.bsstokes.learnanything.sync.SyncService;
 import com.bsstokes.learnanything.sync.rx.EndlessObserver;
+import com.bsstokes.learnanything.ui.BaseActionBarActivity;
 import com.bsstokes.learnanything.ui.TopicActivity;
-import com.crashlytics.android.Crashlytics;
+import com.squareup.sqlbrite.SqlBrite;
 
-import butterknife.ButterKnife;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import butterknife.InjectView;
 import butterknife.OnItemClick;
-import io.realm.Realm;
-import io.realm.RealmResults;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
-public class TopicTreeActivity extends ActionBarActivity {
+public class TopicTreeActivity extends BaseActionBarActivity {
 
     @InjectView(R.id.topic_list_view)
     ListView mTopicListView;
 
+    @Inject
+    Database database;
+
     private TopicTreeListAdapter mTopicAdapter;
-    private Realm realm;
+
+    @Override
+    @LayoutRes
+    protected int getContentView() {
+        return R.layout.activity_topic_tree;
+    }
+
+    @Nullable
+    @Override
+    protected View getHeaderSectionView() {
+        return null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_topic_tree);
-        ButterKnife.inject(this);
 
-        realm = Realm.getInstance(this);
-        Log.d("REALM", "Realm path: " + realm.getPath());
+        getMainApplication().component().inject(this);
 
-        RealmResults<Topic> topics = RealmUtils.findAllTopLevelTopics(realm);
-        mTopicAdapter = new TopicTreeListAdapter(this, topics);
+        mTopicAdapter = new TopicTreeListAdapter(this);
         mTopicListView.setAdapter(mTopicAdapter);
 
         requestSync();
-    }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        realm.close();
+        database.getTopLevelTopics()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(new Func1<SqlBrite.Query, List<Topic>>() {
+                    @Override
+                    public List<Topic> call(SqlBrite.Query query) {
+                        List<Topic> topics = new ArrayList<>();
+
+                        try (Cursor cursor = query.run()) {
+                            while (cursor.moveToNext()) {
+                                Topic topic = new CursorToTopic().call(cursor);
+                                topics.add(topic);
+                            }
+                        }
+
+                        return topics;
+                    }
+                })
+                .subscribe(new EndlessObserver<List<Topic>>() {
+                    @Override
+                    public void onNext(List<Topic> topics) {
+                        Log.d(TAG, "Got " + topics.size() + " topics from database.");
+                        mTopicAdapter.setTopics(topics);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        Log.e(TAG, "", throwable);
+                    }
+                });
     }
 
     @Override
@@ -81,7 +122,7 @@ public class TopicTreeActivity extends ActionBarActivity {
                 return true;
 
             case (R.id.action_backup_database):
-                copyDatabaseToSDCard();
+                toast("Oops. Not implemented.");
                 return true;
         }
 
@@ -98,26 +139,5 @@ public class TopicTreeActivity extends ActionBarActivity {
         SyncService.startActionSyncTopicTree(this);
     }
 
-    private void copyDatabaseToSDCard() {
-        String databasePath = realm.getPath();
-        CopyFile.copyDatabaseToSDCard(databasePath)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new EndlessObserver<String>() {
-                    @Override
-                    public void onNext(String backedUpPath) {
-                        toast("Copied database to " + backedUpPath);
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                        Crashlytics.logException(throwable);
-                    }
-                });
-    }
-
-    private void toast(String text) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-    }
+    private static final String TAG = "TopicTreeActivity";
 }
