@@ -5,6 +5,7 @@ import com.bsstokes.learnanything.models.Video;
 import rx.functions.Func1;
 
 public class ApiVideoToVideo implements Func1<com.bsstokes.learnanything.api.models.Video, Video> {
+
     @Override
     public Video call(com.bsstokes.learnanything.api.models.Video video) {
         return Video.builder()
